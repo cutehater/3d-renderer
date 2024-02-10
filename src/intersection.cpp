@@ -65,9 +65,9 @@ intersectPlaneTriangle(const Primitives::Triangle &triangle,
     // determine vertices relation to plane
     for (size_t i = 0; i < triangleVerticesPos.size(); ++i) {
         glm::dvec3 vertex = triangleVerticesPos[i];
-        double intersection =
+        double orientedDist =
             glm::dot(plane.getNorm(), vertex) - plane.getDistFromOrigin();
-        if (intersection > glm::epsilon<double>()) {
+        if (orientedDist > glm::epsilon<double>()) {
             frontVerticesNum++;
             verticesType[i] = VertexType::Front;
         } else {
