@@ -1,5 +1,5 @@
-#ifndef CLIP_H
-#define CLIP_H
+#ifndef INTERSECTION_H
+#define INTERSECTION_H
 
 #include "primitives.h"
 #include <vector>
@@ -22,4 +22,4 @@ intersectTrianglePlane(const Primitives::Triangle &triangle,
                        const Primitives::Plane &plane);
 } // namespace ScratchRenderer
 
-#endif // CLIP_H
+#endif // INTERSECTION_H

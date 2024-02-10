@@ -13,12 +13,14 @@ Intersection intersectRayPlane(const Primitives::Ray &ray,
         glm::dot(plane.getNorm(), ray.getOrigin()) - plane.getDistFromOrigin();
     double denominator = glm::dot(plane.getNorm(), ray.getDirection());
 
-    if (glm::equal(numerator, 0.0, glm::epsilon<double>())) {
-        return Intersection{Intersection::Type::Coincide,
-                            ray.getOrigin()}; // ray lies on plane
-    } else if (glm::equal(denominator, 0.0, glm::epsilon<double>())) {
-        return Intersection{
-            Intersection::Type::NonIntersect}; // ray is parallel to plane
+    if (glm::equal(denominator, 0.0, glm::epsilon<double>())) {
+        if (glm::equal(numerator, 0.0, glm::epsilon<double>())) {
+            return Intersection{Intersection::Type::Coincide,
+                                ray.getOrigin()}; // ray lies on plane
+        } else {
+            return Intersection{
+                Intersection::Type::NonIntersect}; // ray is parallel to plane
+        }
     } else {
         double fraction = -numerator / denominator;
         if (fraction < 0.0) {
@@ -38,46 +40,16 @@ Intersection intersectRayTriangle(const Primitives::Ray &ray,
 
     if (intersection.type != Intersection::Type::NonIntersect) {
         // checking if intersection lie inside triangle
-        std::vector<glm::dvec3> vertices = triangle.getVerticesPositions();
-        for (auto &v : vertices) {
-            v -= intersection.point;
-        }
-
-        std::vector<glm::dvec3> crossProducts(vertices.size());
-        for (size_t i = 0; i < vertices.size(); ++i) {
-            crossProducts[i] =
-                glm::cross(vertices[i], vertices[(i + 1) % vertices.size()]);
-        }
-
-        if (glm::dot(crossProducts[0], crossProducts[1]) <
-                -glm::epsilon<double>() ||
-            glm::dot(crossProducts[0], crossProducts[2]) <
-                -glm::epsilon<double>()) {
-            intersection.type = Intersection::Type::NonIntersect;
+        std::vector<double> vertices =
+            triangle.getBarycentricWeights(intersection.point);
+        if (vertices[0] < -glm::epsilon<double>() ||
+            vertices[1] < -glm::epsilon<double>() ||
+            vertices[2] < -glm::epsilon<double>()) {
+            return Intersection{Intersection::Type::NonIntersect};
         }
     }
 
     return intersection;
-}
-
-Primitives::Vertex createClippedVertex(const Primitives::Vertex &front,
-                                       const Primitives::Vertex &back,
-                                       const Primitives::Plane &plane) {
-    Primitives::Ray ray(glm::dvec3(front.getPosition()),
-                        glm::normalize(glm::dvec3(back.getPosition()) -
-                                       glm::dvec3(front.getPosition())));
-    glm::dvec3 pos = intersectRayPlane(ray, plane).point;
-    glm::dvec4 pos4 = glm::dvec4(pos.x, pos.y, pos.z, 1.0);
-
-    double relationFactor = (front.getPosition() - pos4).length() /
-                            (front.getPosition() - back.getPosition()).length();
-    return Primitives::Vertex(pos4,
-                              front.getNorm() * relationFactor +
-                                  back.getNorm() * (1 - relationFactor),
-                              front.getTexture() * relationFactor +
-                                  back.getTexture() * (1 - relationFactor),
-                              front.getColor() * relationFactor +
-                                  back.getColor() * (1 - relationFactor));
 }
 
 std::vector<Primitives::Triangle>
@@ -123,8 +95,15 @@ intersectPlaneTriangle(const Primitives::Triangle &triangle,
             std::swap(frontIdx, backIdx);
         }
 
-        newVertices.push_back(createClippedVertex(
-            triangleVertices[frontIdx], triangleVertices[backIdx], plane));
+        Primitives::Ray ray(
+            glm::dvec3(triangleVertices[frontIdx].getPosition()),
+            glm::normalize(
+                glm::dvec3(triangleVertices[backIdx].getPosition()) -
+                glm::dvec3(triangleVertices[frontIdx].getPosition())));
+        glm::dvec3 intersection = intersectRayPlane(ray, plane).point;
+        newVertices.push_back(Primitives::Vertex(
+            triangle,
+            glm::dvec4(intersection.x, intersection.y, intersection.z, 1.0)));
     }
 
     if (newVertices.size() == 3) {

@@ -13,18 +13,20 @@ class Vertex {
 public:
     Vertex() = default;
     Vertex(const glm::dvec4 &pos, const glm::dvec3 &norm,
-           const glm::dvec2 &texture, const glm::dvec4 &color);
+           const glm::dvec2 &texture, const glm::dvec3 &color);
+    // constructor for interpolated vertex inside triangle
+    Vertex(const Triangle &Triangle, const glm::dvec4 &pos);
 
     glm::dvec4 getPosition() const;
     glm::dvec3 getNorm() const;
     glm::dvec2 getTexture() const;
-    glm::dvec4 getColor() const;
+    glm::dvec3 getColor() const;
 
 private:
     glm::dvec4 pos_;
     glm::dvec3 norm_;
     glm::dvec2 texture_;
-    glm::dvec4 color_;
+    glm::dvec3 color_;
 };
 
 class Ray {
@@ -47,6 +49,7 @@ public:
 
     std::vector<Vertex> getVertices() const;
     std::vector<glm::dvec3> getVerticesPositions() const;
+    std::vector<double> getBarycentricWeights(glm::dvec3 p) const;
 
 private:
     std::vector<Vertex> vertices_;
