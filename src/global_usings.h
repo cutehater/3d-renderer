@@ -12,9 +12,9 @@ using Vector2 = glm::dvec2;
 using Vector3 = glm::dvec3;
 using Vector4 = glm::dvec4;
 
-static constexpr Vector2 ZeroVector2 = Vector2(0.0, 0.0);
-static constexpr Vector3 ZeroVector3 = Vector3(0.0, 0.0, 0.0);
-static constexpr Vector4 ZeroVector4 = Vector4(0.0, 0.0, 0.0, 0.0);
+static constexpr Vector2 ZeroVector2 = Vector2();
+static constexpr Vector3 ZeroVector3 = Vector3();
+static constexpr Vector4 ZeroVector4 = Vector4();
 static const double Epsilon = glm::epsilon<double>();
 
 } // namespace ScratchRenderer
