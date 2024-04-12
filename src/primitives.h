@@ -1,74 +1,117 @@
 #ifndef PRIMITIVES_H
 #define PRIMITIVES_H
 
-#include "glm/geometric.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
-#include <vector>
+#include "global_usings.h"
+#include <array>
 
 namespace ScratchRenderer {
 namespace Primitives {
 class Vertex {
 public:
     Vertex() = default;
-    Vertex(const glm::dvec4 &pos, const glm::dvec3 &norm,
-           const glm::dvec2 &texture, const glm::dvec3 &color);
-    // constructor for interpolated vertex inside triangle
-    Vertex(const Triangle &Triangle, const glm::dvec4 &pos);
+    Vertex(const Vector3 &position, const Vector3 &normal,
+           const Vector2 &texture, const Vector3 &color);
 
-    glm::dvec4 getPosition() const;
-    glm::dvec3 getNorm() const;
-    glm::dvec2 getTexture() const;
-    glm::dvec3 getColor() const;
+    static Vertex interpolateVertexInsideTriangle(const Triangle &triangle,
+                                                  const Vector3 &position);
+
+    bool operator==(const Vertex &other) const;
+    bool operator!=(const Vertex &other) const;
+
+    Vector3 getPosition() const;
+    Vector3 getNormal() const;
+    Vector2 getTexture() const;
+    Vector3 getColor() const;
 
 private:
-    glm::dvec4 pos_;
-    glm::dvec3 norm_;
-    glm::dvec2 texture_;
-    glm::dvec3 color_;
+    Vector3 position_ = ZeroVector3;
+    Vector3 normal_ = ZeroVector3;
+    Vector2 texture_ = ZeroVector2;
+    Vector3 color_ = ZeroVector3;
 };
 
 class Ray {
 public:
     Ray() = default;
-    Ray(const glm::dvec3 &origin, const glm::dvec3 &direction);
+    Ray(const Vector3 &origin, const Vector3 &direction);
 
-    glm::dvec3 getOrigin() const;
-    glm::dvec3 getDirection() const;
+    Vector3 getOrigin() const;
+    Vector3 getDirection() const;
 
 private:
-    glm::dvec3 origin_;
-    glm::dvec3 direction_;
+    Vector3 origin_ = ZeroVector3;
+    Vector3 direction_ = ZeroVector3;
 };
 
 class Triangle {
 public:
+    class TrianglePositionsView {
+        using Container = const std::array<Vertex, 3>;
+
+        friend class Triangle;
+        TrianglePositionsView(Container *host) : host_(host) {}
+
+        class ConstIterator {
+            using HostIterator = Container::const_iterator;
+
+        public:
+            ConstIterator(HostIterator iter) : iter_(iter) {}
+
+            Vector3 operator*() const { return iter_->getPosition(); }
+            ConstIterator &operator++() {
+                ++iter_;
+                return *this;
+            }
+            bool operator==(const ConstIterator &other) const {
+                return iter_ == other.iter_;
+            }
+            bool operator!=(const ConstIterator &other) const {
+                return iter_ != other.iter_;
+            }
+
+        private:
+            HostIterator iter_;
+        };
+
+    public:
+        ConstIterator begin() const { return ConstIterator(host_->begin()); }
+        ConstIterator end() const { return ConstIterator(host_->end()); }
+        size_t size() const { return host_->size(); }
+        Vector3 operator[](size_t index) const {
+            return (*host_)[index].getPosition();
+        }
+
+    private:
+        Container *host_;
+    };
+
+public:
     Triangle() = default;
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
 
-    std::vector<Vertex> getVertices() const;
-    std::vector<glm::dvec3> getVerticesPositions() const;
-    std::vector<double> getBarycentricWeights(glm::dvec3 p) const;
+    const std::array<Vertex, 3> &getVertices() const;
+    TrianglePositionsView getVerticesPositions() const;
+    const std::array<double, 3> &
+    getBarycentricCoordinates(const Vector3 &p) const;
 
 private:
-    std::vector<Vertex> vertices_;
+    std::array<Vertex, 3> vertices_;
 };
 
 class Plane {
 public:
     Plane() = default;
-    Plane(const glm::dvec3 &a, const glm::dvec3 &b, const glm::dvec3 &c);
-    Plane(const glm::dvec3 &norm, double distFromOrigin);
-    Plane(const glm::dvec3 &norm, const glm::dvec3 &p);
+    Plane(const Vector3 &a, const Vector3 &b, const Vector3 &c);
+    Plane(const Vector3 &normal, double orientedDistFromOrigin);
+    Plane(const Vector3 &normal, const Vector3 &p);
     Plane(const Triangle &triangle);
 
-    glm::dvec3 getNorm() const;
-    double getDistFromOrigin() const;
+    Vector3 getNormal() const;
+    double getOrientedDistFromOrigin() const;
 
 private:
-    glm::dvec3 norm_;
-    double distFromOrigin_;
+    Vector3 normal_ = ZeroVector3;
+    double orientedDistFromOrigin_ = 0.0;
 };
 } // namespace Primitives
 } // namespace ScratchRenderer
