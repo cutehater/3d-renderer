@@ -10,7 +10,7 @@ namespace ScratchRenderer {
 namespace Primitives {
 Vertex::Vertex(const Vector3 &position, const Vector3 &normal,
                const Vector3 &color)
-    : position_(position), normal_(normal), color_(color){};
+    : position_(position), color_(color){};
 
 Vertex Vertex::interpolateVertexInsideTriangle(const Triangle &triangle,
                                                const Vector3 &position) {
@@ -23,7 +23,6 @@ Vertex Vertex::interpolateVertexInsideTriangle(const Triangle &triangle,
     v.position_ = position;
     std::array<Vertex, 3> triangleVertices = triangle.getVertices();
     for (size_t i = 0; i < triangleVertices.size(); ++i) {
-        v.normal_ += weights[i] * triangleVertices[i].getNormal();
         v.color_ += weights[i] * triangleVertices[i].getColor();
     }
 
@@ -37,8 +36,6 @@ bool Vertex::operator==(const Vertex &other) const {
 bool Vertex::operator!=(const Vertex &other) const { return !(*this == other); }
 
 Vector3 Vertex::getPosition() const { return position_; }
-
-Vector3 Vertex::getNormal() const { return normal_; }
 
 Vector3 Vertex::getColor() const { return color_; }
 

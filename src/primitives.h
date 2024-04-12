@@ -19,12 +19,10 @@ public:
     bool operator!=(const Vertex &other) const;
 
     Vector3 getPosition() const;
-    Vector3 getNormal() const;
     Vector3 getColor() const;
 
 private:
     Vector3 position_ = ZeroVector3;
-    Vector3 normal_ = ZeroVector3;
     Vector3 color_ = ZeroVector3;
 };
 
