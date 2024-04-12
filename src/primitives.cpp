@@ -35,9 +35,9 @@ bool Vertex::operator==(const Vertex &other) const {
 
 bool Vertex::operator!=(const Vertex &other) const { return !(*this == other); }
 
-Vector3 Vertex::getPosition() const { return position_; }
+const Vector3 &Vertex::getPosition() const { return position_; }
 
-Vector3 Vertex::getColor() const { return color_; }
+const Vector3 &Vertex::getColor() const { return color_; }
 
 Ray::Ray(const Vector3 &origin, const Vector3 &direction)
     : origin_(origin), direction_(direction) {
@@ -45,9 +45,9 @@ Ray::Ray(const Vector3 &origin, const Vector3 &direction)
            "Ray has zero direction vector");
 };
 
-Vector3 Ray::getOrigin() const { return origin_; }
+const Vector3 &Ray::getOrigin() const { return origin_; }
 
-Vector3 Ray::getDirection() const { return direction_; }
+const Vector3 &Ray::getDirection() const { return direction_; }
 
 Triangle::Triangle(const Vertex &a, const Vertex &b, const Vertex &c)
     : vertices_{a, b, c} {
@@ -81,6 +81,52 @@ Triangle::TrianglePositionsView Triangle::getVerticesPositions() const {
     return TrianglePositionsView(&vertices_);
 }
 
+const Vector3 &
+Triangle::TrianglePositionsView::ConstIterator::operator*() const {
+    return iter_->getPosition();
+}
+
+Triangle::TrianglePositionsView::ConstIterator &
+Triangle::TrianglePositionsView::ConstIterator::operator++() {
+    ++iter_;
+    return *this;
+}
+
+Triangle::TrianglePositionsView::ConstIterator
+Triangle::TrianglePositionsView::ConstIterator::operator++(int) {
+    ConstIterator tmp = *this;
+    ++iter_;
+    return tmp;
+}
+
+bool Triangle::TrianglePositionsView::ConstIterator::operator==(
+    Triangle::TrianglePositionsView::ConstIterator other) const {
+    return iter_ == other.iter_;
+}
+
+bool Triangle::TrianglePositionsView::ConstIterator::operator!=(
+    Triangle::TrianglePositionsView::ConstIterator other) const {
+    return iter_ != other.iter_;
+}
+
+Triangle::TrianglePositionsView::ConstIterator
+Triangle::TrianglePositionsView::begin() const {
+    return ConstIterator(host_->begin());
+}
+
+Triangle::TrianglePositionsView::ConstIterator
+Triangle::TrianglePositionsView::end() const {
+    return ConstIterator(host_->end());
+}
+
+size_t Triangle::TrianglePositionsView::size() const { return host_->size(); }
+
+const Vector3 &Triangle::TrianglePositionsView::operator[](size_t index) const {
+    assert(index < this->size() &&
+           "Triangle vertex position index is out of range");
+    return (*host_)[index].getPosition();
+}
+
 Plane::Plane(const Vector3 &a, const Vector3 &b, const Vector3 &c) {
     Vector3 crossProduct = glm::cross(c - a, b - a);
     assert(!glm::equal(crossProduct, ZeroVector3, Epsilon) &&
@@ -108,7 +154,7 @@ Plane::Plane(const Triangle &triangle)
             triangle.getVertices()[1].getPosition(),
             triangle.getVertices()[2].getPosition()){};
 
-Vector3 Plane::getNormal() const { return normal_; }
+const Vector3 &Plane::getNormal() const { return normal_; }
 
 double Plane::getOrientedDistFromOrigin() const {
     return orientedDistFromOrigin_;

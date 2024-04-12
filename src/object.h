@@ -9,9 +9,9 @@ namespace ScratchRenderer {
 class Object {
 public:
     Object() = default;
-    explicit Object(std::vector<Primitives::Triangle> triangles);
+    explicit Object(std::vector<Primitives::Triangle> &&triangles);
 
-    const std::vector<Primitives::Triangle> &getTriangles();
+    const std::vector<Primitives::Triangle> &getTriangles() const;
 
 private:
     std::vector<Primitives::Triangle> triangles_;

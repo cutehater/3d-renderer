@@ -18,8 +18,8 @@ public:
     bool operator==(const Vertex &other) const;
     bool operator!=(const Vertex &other) const;
 
-    Vector3 getPosition() const;
-    Vector3 getColor() const;
+    const Vector3 &getPosition() const;
+    const Vector3 &getColor() const;
 
 private:
     Vector3 position_ = ZeroVector3;
@@ -31,8 +31,8 @@ public:
     Ray() = default;
     Ray(const Vector3 &origin, const Vector3 &direction);
 
-    Vector3 getOrigin() const;
-    Vector3 getDirection() const;
+    const Vector3 &getOrigin() const;
+    const Vector3 &getDirection() const;
 
 private:
     Vector3 origin_ = ZeroVector3;
@@ -52,30 +52,21 @@ public:
 
         public:
             ConstIterator(HostIterator iter) : iter_(iter) {}
-
-            Vector3 operator*() const { return iter_->getPosition(); }
-            ConstIterator &operator++() {
-                ++iter_;
-                return *this;
-            }
-            bool operator==(const ConstIterator &other) const {
-                return iter_ == other.iter_;
-            }
-            bool operator!=(const ConstIterator &other) const {
-                return iter_ != other.iter_;
-            }
+            const Vector3 &operator*() const;
+            ConstIterator &operator++();
+            ConstIterator operator++(int);
+            bool operator==(ConstIterator other) const;
+            bool operator!=(const ConstIterator other) const;
 
         private:
             HostIterator iter_;
         };
 
     public:
-        ConstIterator begin() const { return ConstIterator(host_->begin()); }
-        ConstIterator end() const { return ConstIterator(host_->end()); }
-        size_t size() const { return host_->size(); }
-        Vector3 operator[](size_t index) const {
-            return (*host_)[index].getPosition();
-        }
+        ConstIterator begin() const;
+        ConstIterator end() const;
+        size_t size() const;
+        const Vector3 &operator[](size_t index) const;
 
     private:
         Container *host_;
@@ -102,7 +93,7 @@ public:
     Plane(const Vector3 &normal, const Vector3 &p);
     Plane(const Triangle &triangle);
 
-    Vector3 getNormal() const;
+    const Vector3 &getNormal() const;
     double getOrientedDistFromOrigin() const;
 
 private:
