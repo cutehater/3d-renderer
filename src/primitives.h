@@ -10,7 +10,7 @@ class Vertex {
 public:
     Vertex() = default;
     Vertex(const Vector3 &position, const Vector3 &normal,
-           const Vector2 &texture, const Vector3 &color);
+           const Vector3 &color);
 
     static Vertex interpolateVertexInsideTriangle(const Triangle &triangle,
                                                   const Vector3 &position);
@@ -20,13 +20,11 @@ public:
 
     Vector3 getPosition() const;
     Vector3 getNormal() const;
-    Vector2 getTexture() const;
     Vector3 getColor() const;
 
 private:
     Vector3 position_ = ZeroVector3;
     Vector3 normal_ = ZeroVector3;
-    Vector2 texture_ = ZeroVector2;
     Vector3 color_ = ZeroVector3;
 };
 
