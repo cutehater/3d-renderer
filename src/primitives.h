@@ -2,6 +2,8 @@
 #define PRIMITIVES_H
 
 #include "global_usings.h"
+#include "vector4.h"
+#include <SFML/Graphics.hpp>
 #include <array>
 
 namespace ScratchRenderer {
@@ -9,64 +11,50 @@ namespace Primitives {
 class Vertex {
 public:
     Vertex() = default;
-    Vertex(const Vector3 &position, const Vector3 &normal,
-           const Vector3 &color);
+    explicit Vertex(const Vector4 &position);
+    Vertex(const Vector4 &position, const Color &color);
 
-    static Vertex interpolateVertexInsideTriangle(const Triangle &triangle,
-                                                  const Vector3 &position);
+    static Vertex interpolate(const Vertex &a, const Vertex &b, double coef);
 
     bool operator==(const Vertex &other) const;
     bool operator!=(const Vertex &other) const;
 
-    const Vector3 &getPosition() const;
-    const Vector3 &getColor() const;
+    Vector4 &getPosition();
+    Color &getColor();
 
 private:
-    Vector3 position_ = ZeroVector3;
-    Vector3 color_ = ZeroVector3;
-};
-
-class Ray {
-public:
-    Ray() = default;
-    Ray(const Vector3 &origin, const Vector3 &direction);
-
-    const Vector3 &getOrigin() const;
-    const Vector3 &getDirection() const;
-
-private:
-    Vector3 origin_ = ZeroVector3;
-    Vector3 direction_ = ZeroVector3;
+    Vector4 position_ = ZeroVector4;
+    Color color_ = sf::Color::Black;
 };
 
 class Triangle {
 public:
-    class TrianglePositionsView {
-        using Container = const std::array<Vertex, 3>;
+    class TrianglePositionsRef {
+        using Container = std::array<Vertex, 3>;
 
         friend class Triangle;
-        TrianglePositionsView(Container *host) : host_(host) {}
+        TrianglePositionsRef(Container *host) : host_(host) {}
 
-        class ConstIterator {
-            using HostIterator = Container::const_iterator;
+        class Iterator {
+            using HostIterator = Container::iterator;
 
         public:
-            ConstIterator(HostIterator iter) : iter_(iter) {}
-            const Vector3 &operator*() const;
-            ConstIterator &operator++();
-            ConstIterator operator++(int);
-            bool operator==(ConstIterator other) const;
-            bool operator!=(const ConstIterator other) const;
+            Iterator(HostIterator iter) : iter_(iter) {}
+            Vector4 &operator*();
+            Iterator &operator++();
+            Iterator operator++(int);
+            bool operator==(Iterator other) const;
+            bool operator!=(const Iterator other) const;
 
         private:
             HostIterator iter_;
         };
 
     public:
-        ConstIterator begin() const;
-        ConstIterator end() const;
+        Iterator begin() const;
+        Iterator end() const;
         size_t size() const;
-        const Vector3 &operator[](size_t index) const;
+        Vector4 &operator[](size_t index) const;
 
     private:
         Container *host_;
@@ -77,29 +65,12 @@ public:
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
 
     const std::array<Vertex, 3> &getVertices() const;
-    TrianglePositionsView getVerticesPositions() const;
-    const std::array<double, 3> &
-    getBarycentricCoordinates(const Vector3 &p) const;
+    TrianglePositionsRef getVerticesPositions();
 
 private:
     std::array<Vertex, 3> vertices_;
 };
 
-class Plane {
-public:
-    Plane() = default;
-    Plane(const Vector3 &a, const Vector3 &b, const Vector3 &c);
-    Plane(const Vector3 &normal, double orientedDistFromOrigin);
-    Plane(const Vector3 &normal, const Vector3 &p);
-    Plane(const Triangle &triangle);
-
-    const Vector3 &getNormal() const;
-    double getOrientedDistFromOrigin() const;
-
-private:
-    Vector3 normal_ = ZeroVector3;
-    double orientedDistFromOrigin_ = 0.0;
-};
 } // namespace Primitives
 } // namespace ScratchRenderer
 

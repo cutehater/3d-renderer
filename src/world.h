@@ -28,11 +28,13 @@ public:
 
     ConstIterator begin() const;
     ConstIterator end() const;
+    size_t size() const;
 
     void addObject(Object &&object);
 
 private:
     std::vector<Object> objects_;
+    size_t size_ = 0;
 };
 } // namespace ScratchRenderer
 

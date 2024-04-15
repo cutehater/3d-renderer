@@ -45,7 +45,10 @@ World::ConstIterator World::end() const {
     return World::ConstIterator(this, objects_.size(), 0);
 }
 
+size_t World::size() const { return size_; }
+
 void World::addObject(Object &&object) {
+    size_ += object.getTriangles().size();
     objects_.emplace_back(std::move(object));
 }
 
