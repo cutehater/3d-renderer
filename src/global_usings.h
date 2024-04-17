@@ -9,15 +9,14 @@
 
 namespace ScratchRenderer {
 
-using Vector2 = glm::dvec3;
+using DiscreteVector2 = sf::Vector2i;
 using Vector3 = glm::dvec3;
 using Matrix4 = glm::dmat4;
 using Color = sf::Color;
 
-static constexpr Vector2 ZeroVector2 = Vector2();
-static constexpr Vector3 ZeroVector3 = Vector3();
 static constexpr Matrix4 IdentityMatrix = glm::dmat4();
 static const double Epsilon = glm::epsilon<double>();
+static const sf::Color DefaultColor = sf::Color::White;
 
 } // namespace ScratchRenderer
 

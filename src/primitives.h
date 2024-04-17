@@ -10,7 +10,6 @@ namespace ScratchRenderer {
 namespace Primitives {
 class Vertex {
 public:
-    Vertex() = default;
     explicit Vertex(const Vector4 &position);
     Vertex(const Vector4 &position, const Color &color);
 
@@ -19,55 +18,56 @@ public:
     bool operator==(const Vertex &other) const;
     bool operator!=(const Vertex &other) const;
 
-    Vector4 &getPosition();
-    Color &getColor();
+    const Vector4 &getPosition() const;
+    const Color &getColor() const;
 
 private:
-    Vector4 position_ = ZeroVector4;
-    Color color_ = sf::Color::Black;
+    Vector4 position_;
+    Color color_ = DefaultColor;
 };
 
 class Triangle {
 public:
-    class TrianglePositionsRef {
+    class TrianglePositionsView {
         using Container = std::array<Vertex, 3>;
 
         friend class Triangle;
-        TrianglePositionsRef(Container *host) : host_(host) {}
+        TrianglePositionsView(const Container &host) : host_(host) {}
 
-        class Iterator {
-            using HostIterator = Container::iterator;
+        class ConstIterator {
+            using HostIterator = Container::const_iterator;
 
         public:
-            Iterator(HostIterator iter) : iter_(iter) {}
-            Vector4 &operator*();
-            Iterator &operator++();
-            Iterator operator++(int);
-            bool operator==(Iterator other) const;
-            bool operator!=(const Iterator other) const;
+            ConstIterator(HostIterator iter) : iter_(iter) {}
+            const Vector4 &operator*() const;
+            ConstIterator &operator++();
+            ConstIterator operator++(int);
+            bool operator==(ConstIterator other) const;
+            bool operator!=(const ConstIterator other) const;
 
         private:
             HostIterator iter_;
         };
 
     public:
-        Iterator begin() const;
-        Iterator end() const;
+        ConstIterator begin() const;
+        ConstIterator end() const;
         size_t size() const;
-        Vector4 &operator[](size_t index) const;
+        const Vector4 &operator[](size_t index) const;
 
     private:
-        Container *host_;
+        const Container &host_;
     };
 
 public:
-    Triangle() = default;
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
+    Triangle(const std::array<Vertex, 3> vertices);
 
-    const std::array<Vertex, 3> &getVertices() const;
-    TrianglePositionsRef getVerticesPositions();
+    const std::array<Vertex, 3> &getYOrderedVertices() const;
+    TrianglePositionsView getYOrderedVerticesPositions() const;
 
 private:
+    void reorderVertices();
     std::array<Vertex, 3> vertices_;
 };
 

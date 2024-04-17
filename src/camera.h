@@ -20,15 +20,16 @@ public:
 
 private:
     void buildTransformMatrix();
-    Primitives::Triangle
-    convertTriangleToCameraCoordinates(Primitives::Triangle triangle) const;
+    Primitives::Triangle convertTriangleToCameraCoordinates(
+        const Primitives::Triangle &triangle) const;
     bool isFront(const Vector4 &vertexPosition) const;
     std::optional<Primitives::Vertex>
-    intersectEdgeNearPlane(Primitives::Triangle &triangle,
+    intersectEdgeNearPlane(const Primitives::Triangle &triangle,
                            size_t vertexIdx) const;
     std::vector<Primitives::Triangle>
-    clipTriangleNearPlane(Primitives::Triangle triangle) const;
-    Primitives::Triangle projectTriangle(Primitives::Triangle triangle) const;
+    clipTriangleNearPlane(const Primitives::Triangle &triangle) const;
+    Primitives::Triangle
+    projectTriangle(const Primitives::Triangle &triangle) const;
 
     Matrix4 rotation_matrix_;
     Matrix4 translation_matrix_;

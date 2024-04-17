@@ -33,13 +33,20 @@ Camera::projectWorldObjects(const World &world) const {
 }
 
 Primitives::Triangle Camera::convertTriangleToCameraCoordinates(
-    Primitives::Triangle triangle) const {
-    for (Vector4 &vertexPosition : triangle.getVerticesPositions()) {
-        vertexPosition = glm::transpose(rotation_matrix_) *
-                         translation_matrix_ * vertexPosition;
-        vertexPosition.normalize();
+    const Primitives::Triangle &triangle) const {
+    std::array<Primitives::Vertex, 3> convertedVertices;
+
+    for (size_t i = 0; i < 3; ++i) {
+        Vector4 convertedVertexPosition =
+            glm::transpose(rotation_matrix_) * translation_matrix_ *
+            triangle.getYOrderedVerticesPositions()[i];
+        convertedVertexPosition.normalize();
+        convertedVertices[i] =
+            Primitives::Vertex(convertedVertexPosition,
+                               triangle.getYOrderedVertices()[i].getColor());
     }
-    return triangle;
+
+    return Primitives::Triangle(convertedVertices);
 }
 
 bool Camera::isFront(const Vector4 &vertexPosition) const {
@@ -47,9 +54,9 @@ bool Camera::isFront(const Vector4 &vertexPosition) const {
 };
 
 std::optional<Primitives::Vertex>
-Camera::intersectEdgeNearPlane(Primitives::Triangle &triangle,
+Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
                                size_t vertexIdx) const {
-    auto verticesPositions = triangle.getVerticesPositions();
+    auto verticesPositions = triangle.getYOrderedVerticesPositions();
     size_t frontIdx = vertexIdx;
     size_t backIdx = (vertexIdx + 1) % 3;
     if (!isFront(verticesPositions[frontIdx])) {
@@ -65,21 +72,21 @@ Camera::intersectEdgeNearPlane(Primitives::Triangle &triangle,
         double coef =
             (edgePlaneIntersection - verticesPositions[backIdx]).length() /
             direction.length();
-        return Primitives::Vertex::interpolate(triangle.getVertices()[backIdx],
-                                               triangle.getVertices()[frontIdx],
-                                               coef);
+        return Primitives::Vertex::interpolate(
+            triangle.getYOrderedVertices()[backIdx],
+            triangle.getYOrderedVertices()[frontIdx], coef);
     } else {
         return std::nullopt;
     }
 }
 
 std::vector<Primitives::Triangle>
-Camera::clipTriangleNearPlane(Primitives::Triangle triangle) const {
+Camera::clipTriangleNearPlane(const Primitives::Triangle &triangle) const {
     std::vector<Primitives::Vertex> clippedVertices;
     clippedVertices.reserve(4);
     for (size_t idx = 0; idx < 3; ++idx) {
-        if (isFront(triangle.getVerticesPositions()[idx])) {
-            clippedVertices.emplace_back(triangle.getVertices()[idx]);
+        if (isFront(triangle.getYOrderedVerticesPositions()[idx])) {
+            clippedVertices.emplace_back(triangle.getYOrderedVertices()[idx]);
         }
         std::optional<Primitives::Vertex> clippedVertex =
             intersectEdgeNearPlane(triangle, idx);
@@ -104,17 +111,24 @@ Camera::clipTriangleNearPlane(Primitives::Triangle triangle) const {
 }
 
 Primitives::Triangle
-Camera::projectTriangle(Primitives::Triangle triangle) const {
-    for (Vector4 &vertexPosition : triangle.getVerticesPositions()) {
-        vertexPosition = projection_matrix_ * vertexPosition;
-        vertexPosition.normalize();
-        assert(vertexPosition.x >= -1 - Epsilon &&
-               vertexPosition.x <= 1 + Epsilon &&
-               vertexPosition.y >= -1 - Epsilon &&
-               vertexPosition.y <= 1 + Epsilon &&
-               vertexPosition.z >= -1 - Epsilon &&
-               vertexPosition.z <= 1 + Epsilon && vertexPosition.w > -Epsilon &&
+Camera::projectTriangle(const Primitives::Triangle &triangle) const {
+    std::array<Primitives::Vertex, 3> projectedVertices;
+
+    for (size_t i = 0; i < 3; ++i) {
+        Vector4 projectedVertexPosition =
+            projection_matrix_ * triangle.getYOrderedVerticesPositions()[i];
+        projectedVertexPosition.normalize();
+        assert(projectedVertexPosition.x >= -1 - Epsilon &&
+               projectedVertexPosition.x <= 1 + Epsilon &&
+               projectedVertexPosition.y >= -1 - Epsilon &&
+               projectedVertexPosition.y <= 1 + Epsilon &&
+               projectedVertexPosition.z >= -1 - Epsilon &&
+               projectedVertexPosition.z <= 1 + Epsilon &&
+               projectedVertexPosition.w > -Epsilon &&
                "Invalid canonical vertex transform");
+        projectedVertices[i] =
+            Primitives::Vertex(projectedVertexPosition,
+                               triangle.getYOrderedVertices()[i].getColor());
     }
 }
 
