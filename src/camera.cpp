@@ -1,7 +1,7 @@
 #include "camera.h"
 
 #include "configuration.h"
-#include "glm/ext/scalar_relational.hpp"
+#include "glm/ext.hpp"
 #include <array>
 #include <optional>
 #include <trigonometric.hpp>
@@ -132,13 +132,12 @@ Camera::projectTriangle(const Primitives::Triangle &triangle) const {
     }
 }
 
-void Camera::rotate(const Matrix4 &m) { rotation_matrix_ *= m; }
+void Camera::rotate(const Vector3 &axe, double angle) {
+    rotation_matrix_ = glm::rotate(rotation_matrix_, angle, axe);
+}
 
-void Camera::translate(const Vector4 &v) {
-    Vector3 shift = Vector4(rotation_matrix_ * v).convertTo3DVector();
-    translation_matrix_[0][3] = shift.x;
-    translation_matrix_[1][3] = shift.y;
-    translation_matrix_[2][3] = shift.z;
+void Camera::translate(const Vector3 &axe, double length) {
+    translation_matrix_ = glm::translate(translation_matrix_, axe * length);
 }
 
 void Camera::buildTransformMatrix() {

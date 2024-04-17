@@ -29,7 +29,6 @@ public:
 
     void normalize();
     double length() const;
-    const Vector3 &convertTo3DVector() const;
 };
 
 } // namespace ScratchRenderer

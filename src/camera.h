@@ -10,13 +10,20 @@
 namespace ScratchRenderer {
 class Camera {
 public:
+    class Axe {
+    public:
+        static constexpr Vector3 X = Vector3(1, 0, 0);
+        static constexpr Vector3 Y = Vector3(0, 1, 0);
+        static constexpr Vector3 Z = Vector3(0, 0, 1);
+    };
+
     Camera();
 
     const std::vector<Primitives::Triangle> &
     projectWorldObjects(const World &world) const;
 
-    void translate(const Vector4 &v);
-    void rotate(const Matrix4 &m);
+    void translate(const Vector3 &axe, double length);
+    void rotate(const Vector3 &axe, double angle);
 
 private:
     void buildTransformMatrix();

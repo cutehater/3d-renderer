@@ -10,6 +10,7 @@ namespace ScratchRenderer {
 namespace Primitives {
 class Vertex {
 public:
+    Vertex() = default;
     explicit Vertex(const Vector4 &position);
     Vertex(const Vector4 &position, const Color &color);
 
@@ -22,7 +23,7 @@ public:
     const Color &getColor() const;
 
 private:
-    Vector4 position_;
+    Vector4 position_ = Vector4();
     Color color_ = DefaultColor;
 };
 

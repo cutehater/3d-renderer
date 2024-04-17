@@ -3,11 +3,11 @@
 #include "glm/ext/scalar_relational.hpp"
 
 namespace ScratchRenderer {
-Vector4::Vector4() : glm::dvec4(0, 0, 0, 1){};
+Vector4::Vector4() : glm::dvec4(0, 0, 0, 1) {}
 
-Vector4::Vector4(double x, double y, double z) : glm::dvec4(x, y, z, 1){};
+Vector4::Vector4(double x, double y, double z) : glm::dvec4(x, y, z, 1) {}
 
-Vector4::Vector4(const glm::dvec4 &v) : glm::dvec4(v.x, v.y, v.z, v.w){};
+Vector4::Vector4(const glm::dvec4 &v) : glm::dvec4(v.x, v.y, v.z, v.w) {}
 
 Vector4 operator+(const Vector4 &v, const Vector4 &u) {
     assert(!glm::equal(v.w * u.w, 0.0, Epsilon) &&
@@ -78,12 +78,6 @@ double Vector4::length() const {
     assert(!glm::equal(this->w, 0.0, Epsilon) &&
            "w-coordinate shouldn't be null");
     return (x * x + y * y + z * z) / w * w;
-}
-
-const Vector3 &Vector4::convertTo3DVector() const {
-    assert(!glm::equal(this->w, 0.0, Epsilon) &&
-           "w-coordinate shouldn't be null");
-    return Vector3(x / w, y / w, z / w);
 }
 
 } // namespace ScratchRenderer
