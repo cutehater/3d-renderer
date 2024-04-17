@@ -19,24 +19,19 @@ public:
 
     Camera();
 
-    const std::vector<Primitives::Triangle> &
-    projectWorldObjects(const World &world) const;
+    std::vector<Primitives::Triangle> projectWorldObjects(const World &world) const;
 
     void translate(const Vector3 &axe, double length);
     void rotate(const Vector3 &axe, double angle);
 
 private:
     void buildTransformMatrix();
-    Primitives::Triangle convertTriangleToCameraCoordinates(
-        const Primitives::Triangle &triangle) const;
+    Primitives::Triangle convertTriangleToCameraCoordinates(const Primitives::Triangle &triangle) const;
     bool isFront(const Vector4 &vertexPosition) const;
-    std::optional<Primitives::Vertex>
-    intersectEdgeNearPlane(const Primitives::Triangle &triangle,
-                           size_t vertexIdx) const;
-    std::vector<Primitives::Triangle>
-    clipTriangleNearPlane(const Primitives::Triangle &triangle) const;
-    Primitives::Triangle
-    projectTriangle(const Primitives::Triangle &triangle) const;
+    std::optional<Primitives::Vertex> intersectEdgeNearPlane(const Primitives::Triangle &triangle,
+                                                             size_t vertexIdx) const;
+    std::vector<Primitives::Triangle> clipTriangleNearPlane(const Primitives::Triangle &triangle) const;
+    Primitives::Triangle projectTriangle(const Primitives::Triangle &triangle) const;
 
     Matrix4 rotation_matrix_;
     Matrix4 translation_matrix_;

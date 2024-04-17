@@ -1,11 +1,11 @@
 #ifndef GLOBAL_USINGS_H
 #define GLOBAL_USINGS_H
 
-#include "glm/ext/scalar_constants.hpp"
-#include "glm/mat4x4.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
 #include <SFML/Graphics.hpp>
+#include <glm/ext/scalar_constants.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 namespace ScratchRenderer {
 
@@ -14,8 +14,8 @@ using Vector3 = glm::dvec3;
 using Matrix4 = glm::dmat4;
 using Color = sf::Color;
 
-static constexpr Matrix4 IdentityMatrix = glm::dmat4();
-static const double Epsilon = glm::epsilon<double>();
+static constexpr Matrix4 IdentityMatrix = glm::mat4(1.0f);
+static constexpr double Epsilon = glm::epsilon<double>();
 static const sf::Color DefaultColor = sf::Color::White;
 
 } // namespace ScratchRenderer

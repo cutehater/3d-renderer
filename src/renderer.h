@@ -13,12 +13,11 @@ class Renderer {
 public:
     Renderer(size_t width, size_t height);
 
-    void renderFrame(sf::RenderWindow &window, const World &world,
-                     const Camera &Camera);
+    void renderFrame(sf::RenderWindow &window, const World &world, const Camera &camera);
 
 private:
     struct ZBufferVertex {
-        const double kMaxDepth = 1 + Epsilon;
+        static constexpr double kMaxDepth = 1 + Epsilon;
 
         double depth = kMaxDepth;
         Color color = DefaultColor;
@@ -28,8 +27,7 @@ private:
     double getInterpolateCoef(size_t left, size_t mid, size_t right) const;
     void updateZBuffer(size_t i, size_t j, const Primitives::Vertex &v);
     void renderTriangle(const Primitives::Triangle &triangle);
-    void renderLine(const Primitives::Vertex &vLeft,
-                    const Primitives::Vertex &vRight, size_t y);
+    void renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, size_t y);
     void drawFrame(sf::RenderWindow &window);
 
     ZBuffer zbuffer_;

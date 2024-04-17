@@ -22,7 +22,7 @@ void Application::run() {
                 return;
             }
         }
-        for (const Handler &handler : keyboardHandlers) {
+        for (const Handler &handler : keyboardHandlers_) {
             if (sf::Keyboard::isKeyPressed(handler.key)) {
                 handler.body();
             }
@@ -33,7 +33,7 @@ void Application::run() {
 }
 
 void Application::createKeyboardHandlers() {
-    keyboardHandlers = {
+    keyboardHandlers_ = {
         {.key = sf::Keyboard::A,
          .body = [this]() { camera_.translate(Camera::Axe::X, configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::D,

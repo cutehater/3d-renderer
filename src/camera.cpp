@@ -3,27 +3,23 @@
 #include "configuration.h"
 #include "glm/ext.hpp"
 #include <array>
+#include <iostream>
 #include <optional>
-#include <trigonometric.hpp>
 
 namespace ScratchRenderer {
 
-Camera::Camera()
-    : rotation_matrix_(IdentityMatrix), translation_matrix_(IdentityMatrix) {
+Camera::Camera() : rotation_matrix_(IdentityMatrix), translation_matrix_(IdentityMatrix) {
     buildTransformMatrix();
 }
 
-const std::vector<Primitives::Triangle> &
-Camera::projectWorldObjects(const World &world) const {
+std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world) const {
     std::vector<Primitives::Triangle> projectedTriangles;
     // all triangles will be clipped into two in worst case
     projectedTriangles.reserve(2 * world.size());
 
     for (const Primitives::Triangle &triangle : world) {
-        Primitives::Triangle projectedTriangle =
-            convertTriangleToCameraCoordinates(triangle);
-        std::vector<Primitives::Triangle> clippedTriangles =
-            clipTriangleNearPlane(projectedTriangle);
+        Primitives::Triangle projectedTriangle = convertTriangleToCameraCoordinates(triangle);
+        std::vector<Primitives::Triangle> clippedTriangles = clipTriangleNearPlane(projectedTriangle);
         for (Primitives::Triangle &clippedTriangle : clippedTriangles) {
             projectedTriangles.emplace_back(projectTriangle(clippedTriangle));
         }
@@ -32,18 +28,15 @@ Camera::projectWorldObjects(const World &world) const {
     return projectedTriangles;
 }
 
-Primitives::Triangle Camera::convertTriangleToCameraCoordinates(
-    const Primitives::Triangle &triangle) const {
+Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives::Triangle &triangle) const {
     std::array<Primitives::Vertex, 3> convertedVertices;
 
     for (size_t i = 0; i < 3; ++i) {
-        Vector4 convertedVertexPosition =
-            glm::transpose(rotation_matrix_) * translation_matrix_ *
-            triangle.getYOrderedVerticesPositions()[i];
+        Vector4 convertedVertexPosition = glm::transpose(rotation_matrix_) * translation_matrix_ *
+                                          triangle.getYOrderedVerticesPositions()[i];
         convertedVertexPosition.normalize();
         convertedVertices[i] =
-            Primitives::Vertex(convertedVertexPosition,
-                               triangle.getYOrderedVertices()[i].getColor());
+            Primitives::Vertex(convertedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }
 
     return Primitives::Triangle(convertedVertices);
@@ -53,9 +46,8 @@ bool Camera::isFront(const Vector4 &vertexPosition) const {
     return (vertexPosition.z - configuration::kNearPlaneDist) > Epsilon;
 };
 
-std::optional<Primitives::Vertex>
-Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
-                               size_t vertexIdx) const {
+std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
+                                                                 size_t vertexIdx) const {
     auto verticesPositions = triangle.getYOrderedVerticesPositions();
     size_t frontIdx = vertexIdx;
     size_t backIdx = (vertexIdx + 1) % 3;
@@ -63,35 +55,27 @@ Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
         std::swap(frontIdx, backIdx);
     }
     if (!isFront(verticesPositions[backIdx])) {
-        Vector4 direction =
-            verticesPositions[frontIdx] - verticesPositions[backIdx];
-        double backPlaneDist =
-            configuration::kNearPlaneDist - verticesPositions[backIdx].z;
-        Vector4 edgePlaneIntersection = verticesPositions[backIdx] +
-                                        direction * backPlaneDist / direction.z;
-        double coef =
-            (edgePlaneIntersection - verticesPositions[backIdx]).length() /
-            direction.length();
-        return Primitives::Vertex::interpolate(
-            triangle.getYOrderedVertices()[backIdx],
-            triangle.getYOrderedVertices()[frontIdx], coef);
+        Vector4 direction = verticesPositions[frontIdx] - verticesPositions[backIdx];
+        double backPlaneDist = configuration::kNearPlaneDist - verticesPositions[backIdx].z;
+        Vector4 edgePlaneIntersection = verticesPositions[backIdx] + direction * backPlaneDist / direction.z;
+        double coef = (edgePlaneIntersection - verticesPositions[backIdx]).length() / direction.length();
+        return Primitives::Vertex::interpolate(triangle.getYOrderedVertices()[backIdx],
+                                               triangle.getYOrderedVertices()[frontIdx], coef);
     } else {
         return std::nullopt;
     }
 }
 
-std::vector<Primitives::Triangle>
-Camera::clipTriangleNearPlane(const Primitives::Triangle &triangle) const {
+std::vector<Primitives::Triangle> Camera::clipTriangleNearPlane(const Primitives::Triangle &triangle) const {
     std::vector<Primitives::Vertex> clippedVertices;
     clippedVertices.reserve(4);
     for (size_t idx = 0; idx < 3; ++idx) {
         if (isFront(triangle.getYOrderedVerticesPositions()[idx])) {
             clippedVertices.emplace_back(triangle.getYOrderedVertices()[idx]);
         }
-        std::optional<Primitives::Vertex> clippedVertex =
-            intersectEdgeNearPlane(triangle, idx);
-        if (clippedVertex) {
-            clippedVertices.emplace_back(std::move(clippedVertex));
+        std::optional<Primitives::Vertex> clippedVertex = intersectEdgeNearPlane(triangle, idx);
+        if (clippedVertex.has_value()) {
+            clippedVertices.emplace_back(std::move(clippedVertex.value()));
         }
     }
 
@@ -101,35 +85,28 @@ Camera::clipTriangleNearPlane(const Primitives::Triangle &triangle) const {
     case 3:
         return {triangle};
     case 4:
-        return {Primitives::Triangle(clippedVertices[0], clippedVertices[1],
-                                     clippedVertices[2]),
-                Primitives::Triangle(clippedVertices[1], clippedVertices[2],
-                                     clippedVertices[3])};
+        return {Primitives::Triangle(clippedVertices[0], clippedVertices[1], clippedVertices[2]),
+                Primitives::Triangle(clippedVertices[1], clippedVertices[2], clippedVertices[3])};
     default:
         assert(false && "Invalid number of vertices in clipping");
     }
 }
 
-Primitives::Triangle
-Camera::projectTriangle(const Primitives::Triangle &triangle) const {
+Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangle) const {
     std::array<Primitives::Vertex, 3> projectedVertices;
 
     for (size_t i = 0; i < 3; ++i) {
-        Vector4 projectedVertexPosition =
-            projection_matrix_ * triangle.getYOrderedVerticesPositions()[i];
+        Vector4 projectedVertexPosition = projection_matrix_ * triangle.getYOrderedVerticesPositions()[i];
         projectedVertexPosition.normalize();
-        assert(projectedVertexPosition.x >= -1 - Epsilon &&
-               projectedVertexPosition.x <= 1 + Epsilon &&
-               projectedVertexPosition.y >= -1 - Epsilon &&
-               projectedVertexPosition.y <= 1 + Epsilon &&
-               projectedVertexPosition.z >= -1 - Epsilon &&
-               projectedVertexPosition.z <= 1 + Epsilon &&
-               projectedVertexPosition.w > -Epsilon &&
-               "Invalid canonical vertex transform");
+        assert(projectedVertexPosition.x >= -1 - Epsilon && projectedVertexPosition.x <= 1 + Epsilon &&
+               projectedVertexPosition.y >= -1 - Epsilon && projectedVertexPosition.y <= 1 + Epsilon &&
+               projectedVertexPosition.z >= -1 - Epsilon && projectedVertexPosition.z <= 1 + Epsilon &&
+               projectedVertexPosition.w > -Epsilon && "Invalid canonical vertex transform");
         projectedVertices[i] =
-            Primitives::Vertex(projectedVertexPosition,
-                               triangle.getYOrderedVertices()[i].getColor());
+            Primitives::Vertex(projectedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }
+
+    return Primitives::Triangle(projectedVertices);
 }
 
 void Camera::rotate(const Vector3 &axe, double angle) {
@@ -137,7 +114,7 @@ void Camera::rotate(const Vector3 &axe, double angle) {
 }
 
 void Camera::translate(const Vector3 &axe, double length) {
-    translation_matrix_ = glm::translate(translation_matrix_, axe * length);
+    translation_matrix_ = glm::transpose(glm::translate(translation_matrix_, axe * length));
 }
 
 void Camera::buildTransformMatrix() {

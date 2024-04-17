@@ -4,7 +4,8 @@ project(ScratchRenderer)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(app
+add_executable(
+    app
     main.cpp
     src/application.cpp
     src/camera.cpp
@@ -16,9 +17,10 @@ add_executable(app
     src/world.cpp
 )
 
-target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/extern)
+target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/extern/glm)
 
 target_link_libraries(
+    app
     sfml-graphics
     sfml-window
     sfml-system

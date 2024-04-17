@@ -30,7 +30,7 @@ private:
     World world_;
     Camera camera_;
     sf::RenderWindow window_;
-    std::vector<Handler> keyboardHandlers;
+    std::vector<Handler> keyboardHandlers_;
 };
 } // namespace ScratchRenderer
 
