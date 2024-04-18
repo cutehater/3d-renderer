@@ -54,7 +54,7 @@ std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitive
     if (!isFront(verticesPositions[frontIdx])) {
         std::swap(frontIdx, backIdx);
     }
-    if (!isFront(verticesPositions[backIdx])) {
+    if (isFront(verticesPositions[frontIdx]) && !isFront(verticesPositions[backIdx])) {
         Vector4 direction = verticesPositions[frontIdx] - verticesPositions[backIdx];
         double backPlaneDist = configuration::kNearPlaneDist - verticesPositions[backIdx].z;
         Vector4 edgePlaneIntersection = verticesPositions[backIdx] + direction * backPlaneDist / direction.z;
