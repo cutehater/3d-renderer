@@ -12,6 +12,7 @@ class Vector4 : public glm::dvec4 {
 public:
     Vector4();
     Vector4(double x, double y, double z);
+    Vector4(const Vector3 &v);
     Vector4(const glm::dvec4 &v);
 
     friend Vector4 operator+(const Vector4 &v, const Vector4 &u);

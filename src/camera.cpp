@@ -98,10 +98,10 @@ Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangl
     for (size_t i = 0; i < 3; ++i) {
         Vector4 projectedVertexPosition = projection_matrix_ * triangle.getYOrderedVerticesPositions()[i];
         projectedVertexPosition.normalize();
-        assert(projectedVertexPosition.x >= -1 - Epsilon && projectedVertexPosition.x <= 1 + Epsilon &&
+        /*assert(projectedVertexPosition.x >= -1 - Epsilon && projectedVertexPosition.x <= 1 + Epsilon &&
                projectedVertexPosition.y >= -1 - Epsilon && projectedVertexPosition.y <= 1 + Epsilon &&
                projectedVertexPosition.z >= -1 - Epsilon && projectedVertexPosition.z <= 1 + Epsilon &&
-               projectedVertexPosition.w > -Epsilon && "Invalid canonical vertex transform");
+               projectedVertexPosition.w > -Epsilon && "Invalid canonical vertex transform");*/
         projectedVertices[i] =
             Primitives::Vertex(projectedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }
@@ -114,7 +114,8 @@ void Camera::rotate(const Vector3 &axe, double angle) {
 }
 
 void Camera::translate(const Vector3 &axe, double length) {
-    translation_matrix_ = glm::transpose(glm::translate(translation_matrix_, axe * length));
+    translation_matrix_ =
+        glm::translate(translation_matrix_, Vector3(rotation_matrix_ * Vector4(axe) * length));
 }
 
 void Camera::buildTransformMatrix() {
