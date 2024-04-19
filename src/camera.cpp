@@ -32,9 +32,8 @@ Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives
     std::array<Primitives::Vertex, 3> convertedVertices;
 
     for (size_t i = 0; i < 3; ++i) {
-        Vector4 convertedVertexPosition = glm::transpose(rotation_matrix_) * translation_matrix_ *
-                                          triangle.getYOrderedVerticesPositions()[i];
-        convertedVertexPosition.normalize();
+        Vector4 convertedVertexPosition =
+            rotation_matrix_ * translation_matrix_ * triangle.getYOrderedVerticesPositions()[i];
         convertedVertices[i] =
             Primitives::Vertex(convertedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }
@@ -114,8 +113,8 @@ void Camera::rotate(const Vector3 &axe, double angle) {
 }
 
 void Camera::translate(const Vector3 &axe, double length) {
-    translation_matrix_ =
-        glm::translate(translation_matrix_, Vector3(rotation_matrix_ * Vector4(axe) * length));
+    translation_matrix_ = glm::translate(translation_matrix_,
+                                         Vector3(glm::transpose(rotation_matrix_) * Vector4(-axe) * length));
 }
 
 void Camera::buildTransformMatrix() {
@@ -131,7 +130,7 @@ void Camera::buildTransformMatrix() {
 
     projection_matrix_ = Matrix4{{2 * n / (r - l), 0, (r + l) / (r - l), 0},
                                  {0, 2 * n / (t - b), (t + b) / (t - b), 0},
-                                 {0, 0, n + f / (n - f), 2 * n * f / (n - f)},
+                                 {0, 0, -(f + n) / (f - n), -2 * n * f / (f - n)},
                                  {0, 0, -1, 0}};
 }
 } // namespace ScratchRenderer

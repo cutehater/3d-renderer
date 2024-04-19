@@ -13,9 +13,9 @@ constexpr size_t kWindowWidth = 1000;
 constexpr size_t kWindowHeight = 1000;
 constexpr double kAspectRatio = double(kWindowHeight) / kWindowWidth;
 
-constexpr double kNearPlaneDist = 1;
-constexpr double kFarPlaneDist = 10;
-constexpr double kFieldOfViewAngle = std::numbers::pi / 2;
+constexpr double kNearPlaneDist = 1.4;
+constexpr double kFarPlaneDist = 100;
+constexpr double kFieldOfViewAngle = std::numbers::pi / 6;
 
 constexpr double kCameraTranslateSpeed = 0.1;
 constexpr double kCameraRotateSpeed = 0.1;

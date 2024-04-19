@@ -6,11 +6,8 @@ Screen::Screen(size_t width, size_t height) : width_(width), height_(height) {
 }
 
 DiscreteVector2 Screen::projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const {
-    auto cutToScreen = [](double value, const size_t bound) {
-        return size_t(std::max(0.0, std::min(value, bound - 1.0)));
-    };
-    size_t x = cutToScreen((v.getPosition().x + 1) / 2 * width_, width_);
-    size_t y = cutToScreen((v.getPosition().y + 1) / 2 * height_, height_);
+    int x = (v.getPosition().x + 1) / 2 * width_;
+    int y = (v.getPosition().y + 1) / 2 * height_;
     return sf::Vector2i{x, y};
 }
 
@@ -20,7 +17,7 @@ void Screen::setPixel(size_t i, size_t j, const Color &color) {
     }
 }
 
-bool Screen::isPixelValid(size_t i, size_t j) const { return 0 <= i && i < height_ && 0 <= j && j < width_; }
+bool Screen::isPixelValid(size_t i, size_t j) const { return 0 <= i && i < width_ && 0 <= j && j < height_; }
 
 const std::vector<sf::Vertex> &Screen::getDrawData() const { return data_; }
 

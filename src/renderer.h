@@ -17,17 +17,17 @@ public:
 
 private:
     struct ZBufferVertex {
-        static constexpr double kMaxDepth = 1 + Epsilon;
+        static constexpr double kMaxDepth = 100;
 
         double depth = kMaxDepth;
         Color color = DefaultColor;
     };
     using ZBuffer = Storage2D<ZBufferVertex>;
 
-    double getInterpolateCoef(size_t left, size_t mid, size_t right) const;
-    void updateZBuffer(size_t i, size_t j, const Primitives::Vertex &v);
+    double getInterpolateCoef(int left, int mid, int right) const;
+    void updateZBuffer(int i, int j, const Primitives::Vertex &v);
     void renderTriangle(const Primitives::Triangle &triangle);
-    void renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, size_t y);
+    void renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y);
     void drawFrame(sf::RenderWindow &window);
 
     ZBuffer zbuffer_;

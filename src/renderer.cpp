@@ -19,13 +19,13 @@ void Renderer::renderFrame(sf::RenderWindow &window, const World &world, const C
     drawFrame(window);
 }
 
-double Renderer::getInterpolateCoef(size_t left, size_t mid, size_t right) const {
+double Renderer::getInterpolateCoef(int left, int mid, int right) const {
     assert(left != right && left <= mid && mid <= right && "Bad interpolating coefficient");
     return double(mid - left) / (right - left);
 }
 
-void Renderer::updateZBuffer(size_t i, size_t j, const Primitives::Vertex &v) {
-    if (zbuffer_(i, j).depth > v.getPosition().z) {
+void Renderer::updateZBuffer(int i, int j, const Primitives::Vertex &v) {
+    if (screen_.isPixelValid(i, j) && zbuffer_(i, j).depth > v.getPosition().z) {
         zbuffer_(i, j).depth = v.getPosition().z;
         zbuffer_(i, j).color = v.getColor();
     }
@@ -33,14 +33,18 @@ void Renderer::updateZBuffer(size_t i, size_t j, const Primitives::Vertex &v) {
 
 void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
     auto [vMin, vMid, vMax] = triangle.getYOrderedVertices();
-    size_t yMin = screen_.projectVertexToScreenAndDiscretize(vMin).y;
-    size_t yMid = screen_.projectVertexToScreenAndDiscretize(vMid).y;
-    size_t yMax = screen_.projectVertexToScreenAndDiscretize(vMax).y;
+    int yMin = screen_.projectVertexToScreenAndDiscretize(vMin).y;
+    int yMid = screen_.projectVertexToScreenAndDiscretize(vMid).y;
+    int yMax = screen_.projectVertexToScreenAndDiscretize(vMax).y;
 
     if (yMin == yMax) {
-        size_t xMin = screen_.projectVertexToScreenAndDiscretize(vMin).x;
-        size_t xMid = screen_.projectVertexToScreenAndDiscretize(vMid).x;
-        size_t xMax = screen_.projectVertexToScreenAndDiscretize(vMax).x;
+        if (!screen_.isPixelValid(0, yMin)) {
+            return;
+        }
+
+        int xMin = screen_.projectVertexToScreenAndDiscretize(vMin).x;
+        int xMid = screen_.projectVertexToScreenAndDiscretize(vMid).x;
+        int xMax = screen_.projectVertexToScreenAndDiscretize(vMax).x;
         if (xMin > xMid) {
             std::swap(xMin, xMid);
             std::swap(vMin, vMid);
@@ -57,7 +61,8 @@ void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
         return;
     }
 
-    for (size_t y = yMin; y <= yMax; ++y) {
+    for (int y = std::max(0, yMin); y <= std::min(int(screen_.getHeight()) - 1, yMax); ++y) {
+
         Primitives::Vertex vLeft =
             Primitives::Vertex::interpolate(vMin, vMax, getInterpolateCoef(yMin, y, yMax));
         Primitives::Vertex vRight =
@@ -65,8 +70,8 @@ void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
                 ? Primitives::Vertex::interpolate(vMin, vMid, getInterpolateCoef(yMin, y, yMid))
                 : Primitives::Vertex::interpolate(vMid, vMax, getInterpolateCoef(yMid, y, yMax));
 
-        size_t xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
-        size_t xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
+        int xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
+        int xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
         if (xLeft > xRight) {
             std::swap(vLeft, vRight);
         }
@@ -75,14 +80,14 @@ void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
     }
 }
 
-void Renderer::renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, size_t y) {
-    size_t xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
-    size_t xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
+void Renderer::renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y) {
+    int xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
+    int xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
 
     if (xLeft == xRight) {
-        updateZBuffer(xLeft, y, (vLeft.getPosition().z < vRight.getPosition().z ? vLeft : vRight));
+        updateZBuffer(xLeft, y, (vLeft.getPosition().y < vRight.getPosition().y ? vLeft : vRight));
     } else {
-        for (size_t x = xLeft; x <= xRight; ++x) {
+        for (int x = std::max(0, xLeft); x <= std::min(int(screen_.getWidth()) - 1, xRight); ++x) {
             updateZBuffer(
                 x, y, Primitives::Vertex::interpolate(vLeft, vRight, getInterpolateCoef(xLeft, x, xRight)));
         }
