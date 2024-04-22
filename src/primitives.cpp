@@ -19,6 +19,8 @@ const Vector4 &Vertex::getPosition() const { return position_; }
 
 const Color &Vertex::getColor() const { return color_; }
 
+void Vertex::setColor(const Color &color) { color_ = color; }
+
 Vertex Vertex::interpolate(const Vertex &a, const Vertex &b, double coef) {
     return Vertex(a.position_ * (1 - coef) + b.position_ * coef, a.color_ * (1 - coef) + b.color_ * coef);
 }

@@ -10,6 +10,7 @@ add_executable(
     src/application.cpp
     src/camera.cpp
     src/object.cpp
+    src/off_loader.cpp
     src/primitives.cpp
     src/renderer.cpp
     src/screen.cpp

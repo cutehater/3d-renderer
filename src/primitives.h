@@ -22,6 +22,8 @@ public:
     const Vector4 &getPosition() const;
     const Color &getColor() const;
 
+    void setColor(const Color &color);
+
 private:
     Vector4 position_ = Vector4();
     Color color_ = DefaultColor;
