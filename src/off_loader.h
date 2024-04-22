@@ -10,6 +10,8 @@ public:
     Object Load(const std::string &filepath) const;
 
 private:
+    static constexpr double RGBMultiplier = 255;
+
     bool checkFileExtension(const std::string &filepath) const;
     bool checkBlankLinesAndComments(const std::string &line) const;
 };

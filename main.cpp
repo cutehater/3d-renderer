@@ -46,7 +46,7 @@ void createScene(ScratchRenderer::Application &app) {
 int main() {
     ScratchRenderer::Application app;
     ScratchRenderer::Loader loader;
-    app.addObject(loader.Load("house.off"));
+    app.addObject(loader.Load("br2.off"));
     // createScene(app);
     app.run();
     return 0;

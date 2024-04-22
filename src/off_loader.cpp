@@ -43,9 +43,12 @@ Object Loader::Load(const std::string &filepath) const {
             std::istringstream lineReader(line);
             double x, y, z, r, g, b, a;
             lineReader >> x >> y >> z;
-            if (lineReader >> r >> g >> b >> a) {
-                vertices.emplace_back(Vector4(x, y, z),
-                                      Color(uint8_t(r), uint8_t(g), uint8_t(b), uint8_t(a)));
+            if (lineReader >> r >> g >> b) {
+                if (!(lineReader >> a)) {
+                    a = 1;
+                }
+                vertices.emplace_back(Vector4(x, y, z), Color(r * RGBMultiplier, g * RGBMultiplier,
+                                                              b * RGBMultiplier, a * RGBMultiplier));
             } else {
                 vertices.emplace_back(Vector4(x, y, z));
             }
@@ -72,15 +75,18 @@ Object Loader::Load(const std::string &filepath) const {
 
             bool isFaceColored = false;
             double r, g, b, a;
-            if (lineReader >> r >> g >> b >> a) {
+            if (lineReader >> r >> g >> b) {
                 isFaceColored = true;
+                if (!(lineReader >> a)) {
+                    a = 1;
+                }
             }
 
             for (size_t j = 0; j < faceVertexCount; ++j) {
                 if (isFaceColored) {
                     for (size_t vi = j; vi <= j + 2; ++vi) {
-                        vertices[faceVerticesIdx[vi % faceVertexCount]].setColor(
-                            Color(uint8_t(r), uint8_t(g), uint8_t(b), uint8_t(a)));
+                        vertices[faceVerticesIdx[vi % faceVertexCount]].setColor(Color(
+                            r * RGBMultiplier, g * RGBMultiplier, b * RGBMultiplier, a * RGBMultiplier));
                     }
                 }
                 triangles.emplace_back(vertices[faceVerticesIdx[j]],
