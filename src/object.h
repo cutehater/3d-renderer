@@ -12,6 +12,8 @@ public:
     explicit Object(std::vector<Primitives::Triangle> &&triangles);
 
     const std::vector<Primitives::Triangle> &getTriangles() const;
+    void translate(const Vector3 &axe, double length);
+    void rotate(const Vector3 &axe, double angle);
 
 private:
     std::vector<Primitives::Triangle> triangles_;

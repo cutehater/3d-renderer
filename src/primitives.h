@@ -19,12 +19,16 @@ public:
     bool operator==(const Vertex &other) const;
     bool operator!=(const Vertex &other) const;
 
+    friend Vertex operator*(const Matrix4 &m, const Vertex &v);
+
     const Vector4 &getPosition() const;
     const Color &getColor() const;
 
     void setColor(const Color &color);
 
 private:
+    friend sf::Color operator*(const sf::Color color, double coef);
+
     Vector4 position_ = Vector4();
     Color color_ = DefaultColor;
 };
@@ -65,6 +69,8 @@ public:
 public:
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
     Triangle(const std::array<Vertex, 3> vertices);
+
+    static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle);
 
     const std::array<Vertex, 3> &getYOrderedVertices() const;
     TrianglePositionsView getYOrderedVerticesPositions() const;

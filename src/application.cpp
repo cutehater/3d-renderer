@@ -1,6 +1,7 @@
 #include "application.h"
 
 #include "configuration.h"
+#include "global_usings.h"
 #include "vector4.h"
 
 namespace ScratchRenderer {
@@ -35,29 +36,29 @@ void Application::run() {
 void Application::createKeyboardHandlers() {
     keyboardHandlers_ = {
         {.key = sf::Keyboard::A,
-         .body = [this]() { camera_.translate(Camera::Axe::X, configuration::kCameraTranslateSpeed); }},
+         .body = [this]() { camera_.translate(Axe::X, configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::D,
-         .body = [this]() { camera_.translate(Camera::Axe::X, -configuration::kCameraTranslateSpeed); }},
+         .body = [this]() { camera_.translate(Axe::X, -configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::W,
-         .body = [this]() { camera_.translate(Camera::Axe::Z, configuration::kCameraTranslateSpeed); }},
+         .body = [this]() { camera_.translate(Axe::Z, configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::S,
-         .body = [this]() { camera_.translate(Camera::Axe::Z, -configuration::kCameraTranslateSpeed); }},
+         .body = [this]() { camera_.translate(Axe::Z, -configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::Z,
-         .body = [this]() { camera_.translate(Camera::Axe::Y, configuration::kCameraTranslateSpeed); }},
+         .body = [this]() { camera_.translate(Axe::Y, configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::X,
-         .body = [this]() { camera_.translate(Camera::Axe::Y, -configuration::kCameraTranslateSpeed); }},
+         .body = [this]() { camera_.translate(Axe::Y, -configuration::kCameraTranslateSpeed); }},
         {.key = sf::Keyboard::I,
-         .body = [this]() { camera_.rotate(Camera::Axe::X, configuration::kCameraRotateSpeed); }},
+         .body = [this]() { camera_.rotate(Axe::X, configuration::kCameraRotateSpeed); }},
         {.key = sf::Keyboard::K,
-         .body = [this]() { camera_.rotate(Camera::Axe::X, -configuration::kCameraRotateSpeed); }},
+         .body = [this]() { camera_.rotate(Axe::X, -configuration::kCameraRotateSpeed); }},
         {.key = sf::Keyboard::J,
-         .body = [this]() { camera_.rotate(Camera::Axe::Z, configuration::kCameraRotateSpeed); }},
+         .body = [this]() { camera_.rotate(Axe::Y, configuration::kCameraRotateSpeed); }},
         {.key = sf::Keyboard::L,
-         .body = [this]() { camera_.rotate(Camera::Axe::Z, -configuration::kCameraRotateSpeed); }},
+         .body = [this]() { camera_.rotate(Axe::Y, -configuration::kCameraRotateSpeed); }},
         {.key = sf::Keyboard::Q,
-         .body = [this]() { camera_.rotate(Camera::Axe::Y, configuration::kCameraRotateSpeed); }},
+         .body = [this]() { camera_.rotate(Axe::Z, configuration::kCameraRotateSpeed); }},
         {.key = sf::Keyboard::E,
-         .body = [this]() { camera_.rotate(Camera::Axe::Y, -configuration::kCameraRotateSpeed); }},
+         .body = [this]() { camera_.rotate(Axe::Z, -configuration::kCameraRotateSpeed); }},
 
     };
 }

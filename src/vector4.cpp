@@ -61,7 +61,7 @@ bool Vector4::operator==(const Vector4 &other) const {
 bool Vector4::operator!=(const Vector4 &other) const { return !(*this == other); }
 
 void Vector4::normalize() {
-    // assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
+    assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
     x /= w;
     y /= w;
     z /= w;
@@ -69,7 +69,7 @@ void Vector4::normalize() {
 }
 
 double Vector4::length() const {
-    // assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
+    assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
     return (x * x + y * y + z * z) / w * w;
 }
 

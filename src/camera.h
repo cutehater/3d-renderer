@@ -10,13 +10,6 @@
 namespace ScratchRenderer {
 class Camera {
 public:
-    class Axe {
-    public:
-        static constexpr Vector3 X = Vector3(1, 0, 0);
-        static constexpr Vector3 Y = Vector3(0, 1, 0);
-        static constexpr Vector3 Z = Vector3(0, 0, 1);
-    };
-
     Camera();
 
     std::vector<Primitives::Triangle> projectWorldObjects(const World &world) const;
@@ -33,9 +26,9 @@ private:
     std::vector<Primitives::Triangle> clipTriangleNearPlane(const Primitives::Triangle &triangle) const;
     Primitives::Triangle projectTriangle(const Primitives::Triangle &triangle) const;
 
-    Matrix4 rotation_matrix_;
-    Matrix4 translation_matrix_;
-    Matrix4 projection_matrix_;
+    Matrix4 rotationMatrix_;
+    Matrix4 translationMatrix_;
+    Matrix4 projectionMatrix_;
 };
 } // namespace ScratchRenderer
 

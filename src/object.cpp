@@ -1,10 +1,23 @@
 #include "object.h"
 
-namespace ScratchRenderer {
-Object::Object(std::vector<Primitives::Triangle> &&triangles)
-    : triangles_(std::move(triangles)) {}
+#include "glm/ext.hpp"
 
-const std::vector<Primitives::Triangle> &Object::getTriangles() const {
-    return triangles_;
+namespace ScratchRenderer {
+Object::Object(std::vector<Primitives::Triangle> &&triangles) : triangles_(std::move(triangles)) {}
+
+const std::vector<Primitives::Triangle> &Object::getTriangles() const { return triangles_; }
+
+void Object::translate(const Vector3 &axe, double length) {
+    Matrix4 translatonMatrix = glm::translate(IdentityMatrix, axe * length);
+    for (size_t i = 0; i < triangles_.size(); ++i) {
+        triangles_[i] = Primitives::Triangle::linearTransform(translatonMatrix, triangles_[i]);
+    }
+}
+
+void Object::rotate(const Vector3 &axe, double angle) {
+    Matrix4 rotationMatrix = glm::rotate(IdentityMatrix, angle, axe);
+    for (size_t i = 0; i < triangles_.size(); ++i) {
+        triangles_[i] = Primitives::Triangle::linearTransform(rotationMatrix, triangles_[i]);
+    }
 }
 } // namespace ScratchRenderer

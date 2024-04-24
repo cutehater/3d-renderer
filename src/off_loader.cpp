@@ -21,11 +21,9 @@ Object Loader::Load(const std::string &filepath) const {
 
     size_t vertexCount, faceCount;
     while (getline(file, line)) {
-        if (checkBlankLinesAndComments(line) || (isFirstLine && line == "OFF")) {
-            isFirstLine = false;
+        if (checkBlankLinesAndComments(line) || line.substr(0, 3) == "OFF") {
             continue;
         }
-        isFirstLine = false;
 
         std::istringstream lineReader(line);
         size_t edgeCount;

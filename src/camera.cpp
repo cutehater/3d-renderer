@@ -7,7 +7,7 @@
 
 namespace ScratchRenderer {
 
-Camera::Camera() : rotation_matrix_(IdentityMatrix), translation_matrix_(IdentityMatrix) {
+Camera::Camera() : rotationMatrix_(IdentityMatrix), translationMatrix_(IdentityMatrix) {
     buildTransformMatrix();
 }
 
@@ -32,7 +32,7 @@ Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives
 
     for (size_t i = 0; i < 3; ++i) {
         Vector4 convertedVertexPosition =
-            rotation_matrix_ * translation_matrix_ * triangle.getYOrderedVerticesPositions()[i];
+            rotationMatrix_ * translationMatrix_ * triangle.getYOrderedVerticesPositions()[i];
         convertedVertices[i] =
             Primitives::Vertex(convertedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }
@@ -94,12 +94,8 @@ Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangl
     std::array<Primitives::Vertex, 3> projectedVertices;
 
     for (size_t i = 0; i < 3; ++i) {
-        Vector4 projectedVertexPosition = projection_matrix_ * triangle.getYOrderedVerticesPositions()[i];
+        Vector4 projectedVertexPosition = projectionMatrix_ * triangle.getYOrderedVerticesPositions()[i];
         projectedVertexPosition.normalize();
-        /*assert(projectedVertexPosition.x >= -1 - Epsilon && projectedVertexPosition.x <= 1 + Epsilon &&
-               projectedVertexPosition.y >= -1 - Epsilon && projectedVertexPosition.y <= 1 + Epsilon &&
-               projectedVertexPosition.z >= -1 - Epsilon && projectedVertexPosition.z <= 1 + Epsilon &&
-               projectedVertexPosition.w > -Epsilon && "Invalid canonical vertex transform");*/
         projectedVertices[i] =
             Primitives::Vertex(projectedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }
@@ -108,12 +104,13 @@ Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangl
 }
 
 void Camera::rotate(const Vector3 &axe, double angle) {
-    rotation_matrix_ = glm::rotate(rotation_matrix_, angle, axe);
+    rotationMatrix_ =
+        glm::rotate(rotationMatrix_, angle, Vector3(glm::transpose(rotationMatrix_) * Vector4(axe)));
 }
 
 void Camera::translate(const Vector3 &axe, double length) {
-    translation_matrix_ = glm::translate(translation_matrix_,
-                                         Vector3(glm::transpose(rotation_matrix_) * Vector4(-axe) * length));
+    translationMatrix_ =
+        glm::translate(translationMatrix_, Vector3(glm::transpose(rotationMatrix_) * Vector4(-axe) * length));
 }
 
 void Camera::buildTransformMatrix() {
@@ -127,9 +124,9 @@ void Camera::buildTransformMatrix() {
     const double b = -a * n / e;
     const double t = a * n / e;
 
-    projection_matrix_ = Matrix4{{2 * n / (r - l), 0, 2 * (r + l) / (r - l), 0},
-                                 {0, 2 * n / (b - t), 0, 0},
-                                 {0, 0, 0, -2 * n * f / (f - n)},
-                                 {0, 0, 1, 0}};
+    projectionMatrix_ = Matrix4{{2 * n / (r - l), 0, 2 * (r + l) / (r - l), 0},
+                                {0, 2 * n / (b - t), 0, 0},
+                                {0, 0, 0, -2 * n * f / (f - n)},
+                                {0, 0, 1, 0}};
 }
 } // namespace ScratchRenderer

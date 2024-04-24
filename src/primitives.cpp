@@ -2,7 +2,6 @@
 
 #include "glm/ext/scalar_relational.hpp"
 #include "glm/geometric.hpp"
-#include "util.h"
 #include <cassert>
 
 namespace ScratchRenderer {
@@ -15,25 +14,38 @@ bool Vertex::operator==(const Vertex &other) const { return position_ == other.p
 
 bool Vertex::operator!=(const Vertex &other) const { return !(*this == other); }
 
+Vertex operator*(const Matrix4 &m, const Vertex &v) { return Vertex(m * v.getPosition(), v.getColor()); }
+
 const Vector4 &Vertex::getPosition() const { return position_; }
 
 const Color &Vertex::getColor() const { return color_; }
 
 void Vertex::setColor(const Color &color) { color_ = color; }
 
+sf::Color operator*(const sf::Color color, double coef) {
+    sf::Color res = color;
+    res.r *= coef;
+    res.g *= coef;
+    res.b *= coef;
+    return res;
+}
+
 Vertex Vertex::interpolate(const Vertex &a, const Vertex &b, double coef) {
     return Vertex(a.position_ * (1 - coef) + b.position_ * coef, a.color_ * (1 - coef) + b.color_ * coef);
 }
 
 Triangle::Triangle(const Vertex &a, const Vertex &b, const Vertex &c) : vertices_{a, b, c} {
-    // assert(a != b && a != c && b != c && "Triangle vertices are equal");
     reorderVertices();
 };
 
-Triangle::Triangle(const std::array<Vertex, 3> vertices) : vertices_(vertices) {
-    // assert(vertices[0] != vertices[1] && vertices[1] != vertices[2] &&
-    //       vertices[0] != vertices[2] && "Triangle vertices are equal");
-    reorderVertices();
+Triangle::Triangle(const std::array<Vertex, 3> vertices) : vertices_(vertices) { reorderVertices(); }
+
+Triangle Triangle::linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle) {
+    std::array<Vertex, 3> transformedVertices;
+    for (size_t i = 0; i < 3; ++i) {
+        transformedVertices[i] = transformMatrix * triangle.getYOrderedVertices()[i];
+    }
+    return Triangle(transformedVertices);
 }
 
 const std::array<Vertex, 3> &Triangle::getYOrderedVertices() const { return vertices_; }

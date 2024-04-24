@@ -18,6 +18,13 @@ static constexpr Matrix4 IdentityMatrix = glm::mat4(1.0f);
 static constexpr double Epsilon = glm::epsilon<double>();
 static const sf::Color DefaultColor = sf::Color::White;
 
+class Axe {
+public:
+    static constexpr Vector3 X = Vector3(1, 0, 0);
+    static constexpr Vector3 Y = Vector3(0, 1, 0);
+    static constexpr Vector3 Z = Vector3(0, 0, 1);
+};
+
 } // namespace ScratchRenderer
 
 #endif // GLOBAL_USINGS_H
