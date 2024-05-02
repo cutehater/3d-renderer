@@ -130,9 +130,9 @@ void Camera::buildTransformMatrix() {
     const double b = -a * n / e;
     const double t = a * n / e;
 
-    projectionMatrix_ = Matrix4{{2 * n / (r - l), 0, 2 * (r + l) / (r - l), 0},
-                                {0, 2 * n / (b - t), 0, 0},
-                                {0, 0, 0, -2 * n * f / (f - n)},
+    projectionMatrix_ = Matrix4{{2 * n / (r - l), 0, -(r + l) / (r - l), 0},
+                                {0, 2 * n / (t - b), -(t + b) / (t - b), 0},
+                                {0, 0, (f + n) / (f - n), -2 * n * f / (f - n)},
                                 {0, 0, 1, 0}};
 }
 } // namespace ScratchRenderer
