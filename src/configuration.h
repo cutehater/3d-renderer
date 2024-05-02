@@ -14,7 +14,7 @@ constexpr size_t kWindowWidth = 1000;
 constexpr size_t kWindowHeight = 1000;
 constexpr double kAspectRatio = double(kWindowHeight) / kWindowWidth;
 
-constexpr double kNearPlaneDist = 3;
+constexpr double kNearPlaneDist = 1;
 constexpr double kFarPlaneDist = 1000;
 constexpr double kFieldOfViewAngle = std::numbers::pi / 8;
 

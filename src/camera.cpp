@@ -3,6 +3,7 @@
 #include "configuration.h"
 #include "glm/ext.hpp"
 #include <array>
+#include <iostream>
 #include <optional>
 
 namespace ScratchRenderer {
@@ -41,7 +42,7 @@ Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives
 }
 
 bool Camera::isFront(const Vector4 &vertexPosition) const {
-    return (vertexPosition.z - configuration::kNearPlaneDist) > Epsilon;
+    return vertexPosition.z > configuration::kNearPlaneDist;
 };
 
 std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
@@ -55,6 +56,11 @@ std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitive
     if (isFront(verticesPositions[frontIdx]) && !isFront(verticesPositions[backIdx])) {
         Vector4 direction = verticesPositions[frontIdx] - verticesPositions[backIdx];
         double backPlaneDist = configuration::kNearPlaneDist - verticesPositions[backIdx].z;
+        if (backPlaneDist < Epsilon) {
+            return Primitives::Vertex(Vector4(verticesPositions[backIdx].x, verticesPositions[backIdx].y,
+                                              configuration::kNearPlaneDist),
+                                      triangle.getYOrderedVertices()[backIdx].getColor());
+        }
         Vector4 edgePlaneIntersection = verticesPositions[backIdx] + direction * backPlaneDist / direction.z;
         double coef = (edgePlaneIntersection - verticesPositions[backIdx]).length() / direction.length();
         return Primitives::Vertex::interpolate(triangle.getYOrderedVertices()[backIdx],
@@ -81,7 +87,7 @@ std::vector<Primitives::Triangle> Camera::clipTriangleNearPlane(const Primitives
     case 0:
         return {};
     case 3:
-        return {triangle};
+        return {Primitives::Triangle(clippedVertices[0], clippedVertices[1], clippedVertices[2])};
     case 4:
         return {Primitives::Triangle(clippedVertices[0], clippedVertices[1], clippedVertices[2]),
                 Primitives::Triangle(clippedVertices[1], clippedVertices[2], clippedVertices[3])};
