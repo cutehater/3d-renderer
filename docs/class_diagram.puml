@@ -1,0 +1,201 @@
+@startuml Class diagram
+
+namespace ScratchRenderer {
+    class Vector4 {
+        + x: double
+        + y: double
+        + z: double
+        + w: double
+
+        + Vector4()
+        + Vector4(x: double, y: double, z: double)
+        + Vector4(v: Vector3)
+        + Vector4(v: glm::dvec4)
+        + operator+(v: Vector4, u: Vector4): Vector4
+        + operator-(v: Vector4, u: Vector4): Vector4
+        + operator*(v: Vector4, k: double): Vector4
+        + operator/(v: Vector4, k: double): Vector4
+        + operator+=(other: Vector4): Vector4
+        + operator-=(other: Vector4): Vector4
+        + operator*=(k: double): Vector4
+        + operator/=(k: double): Vector4
+        + operator==(other: Vector4): bool
+        + operator!=(other: Vector4): bool
+        + normalize(): void
+        + length(): double
+    }
+
+    namespace Primitives {
+        class Vertex {
+            - position_: Vector4
+            - color_: Color
+
+            + Vertex()
+            + Vertex(position: Vector4)
+            + Vertex(position: Vector4, color: Color)
+            + static interpolate(a: Vertex, b: Vertex, coef: double): Vertex
+            + operator==(other: Vertex): bool
+            + operator!=(other: Vertex): bool
+            + operator*(m: Matrix4, v: Vertex): Vertex
+            + getPosition(): const Vector4&
+            + getColor(): const Color&
+            + setColor(color: Color): void
+        }
+
+        class Triangle {
+            +Triangle(const Vertex &a, const Vertex &b, const Vertex &c)
+            +Triangle(const std::array<Vertex, 3> vertices)
+            +static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle)
+            +getYOrderedVertices() const : std::array<Vertex, 3> &
+            +getYOrderedVerticesPositions() const : TrianglePositionsView
+
+            -reorderVertices()
+            -vertices_: std::array<Vertex, 3>
+        }
+    }
+
+    class Object {
+        +Object()
+        +Object(std::vector<Primitives::Triangle> &&triangles)
+        +getTriangles() const : std::vector<Primitives::Triangle> &
+        +translate(const Vector3 &axe, double length)
+        +rotate(const Vector3 &axe, double angle)
+
+        -triangles_: std::vector<Primitives::Triangle>
+    }
+
+    class World {
+        +World()
+        +begin() const : ConstIterator
+        +end() const : ConstIterator
+        +size() const : size_t
+        +addObject(Object &&object)
+
+        -objects_: std::vector<Object>
+        -size_: size_t
+    }
+
+    class Camera {
+        +Camera()
+        +projectWorldObjects(const World &world) const : std::vector<Primitives::Triangle>
+        +translate(const Vector3 &axe, double length)
+        +rotate(const Vector3 &axe, double angle)
+
+        -buildProjectionMatrix()
+        -convertTriangleToCameraCoordinates(const Primitives::Triangle &triangle) const : Primitives::Triangle
+        -isFront(const Vector4 &vertexPosition) const : bool
+        -intersectEdgeNearPlane(const Primitives::Triangle &triangle, size_t vertexIdx) const : std::optional<Primitives::Vertex>
+        -clipTriangleNearPlane(const Primitives::Triangle &triangle) const : std::vector<Primitives::Triangle>
+        -projectTriangle(const Primitives::Triangle &triangle) const : Primitives::Triangle
+
+        -rotationMatrix_: Matrix4
+        -translationMatrix_: Matrix4
+        -projectionMatrix_: Matrix4
+    }
+
+    class Screen {
+        +Screen(size_t width, size_t height)
+        +projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const : DiscreteVector2
+        +setPixel(size_t i, size_t j, const Color &color)
+        +getDrawData() const : const std::vector<sf::Vertex> &
+        +isPixelValid(size_t i, size_t j) const : bool
+        +getWidth() const : size_t
+        +getHeight() const : size_t
+        +clear()
+
+        -width_: size_t
+        -height_: size_t
+        -data_: std::vector<sf::Vertex>
+    }
+
+    class Loader {
+        +Load(const std::string &filepath) const : Object
+
+        -static constexpr double RGBMultiplier = 255
+        -checkFileExtension(const std::string &filepath) const : bool
+        -checkBlankLinesAndComments(const std::string &line) const : bool
+        -convertToCommonRGBCoordinates(double &r, double &g, double &b, double &a, bool aDefault) const : void;
+        -processVertex(const std::string &line, std::vector<Primitives::Vertex> &vertices) const : void;
+        -processSurface(const std::string &line, std::vector<Primitives::Vertex> &vertices,
+                        std::vector<Primitives::Triangle> &triangles) const : void;
+    }
+
+    class Storage2D {
+        +Storage2D(size_t rows, size_t cols)
+        +operator()(size_t i, size_t j) : T &
+        +operator()(size_t i, size_t j) const : const T &
+        +clear()
+
+        -rows_: size_t
+        -cols_: size_t
+        -data_: std::vector<T>
+    }
+
+    class Renderer {
+        +Renderer(size_t width, size_t height)
+        +renderFrame(sf::RenderWindow &window, const World &world, const Camera &camera)
+        -getInterpolateCoef(int left, int mid, int right) const : double
+        -updateZBuffer(int i, int j, const Primitives::Vertex &v)
+        -renderTriangle(const Primitives::Triangle &triangle)
+        -renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y)
+        -drawFrame(sf::RenderWindow &window)
+
+        -zbuffer_: Storage2D<ZBufferVertex>
+        -screen_: Screen
+    }
+
+    class Application {
+        +Application()
+        +addObject(Object &&object)
+        +run()
+        -createKeyboardHandlers()
+        -renderer_: Renderer
+        -world_: World
+        -camera_: Camera
+        -window_: sf::RenderWindow
+        -keyboardHandlers_: std::vector<Handler>
+    }
+
+    Vertex ..> Vector4
+
+    Triangle o-- Vertex
+    Triangle ..> Vector4
+
+    Object o-- Triangle
+
+    World o-- Object
+    World ..> Triangle
+
+    Camera ..> World
+    Camera ..> Triangle
+    Camera ..> Vertex
+    Camera ..> Vector4
+
+    Screen ..> Vertex
+
+    Loader ..> Object
+    Loader ..> Triangle
+    Loader ..> Vertex
+
+    Renderer o-- Storage2D
+    Renderer o-- Screen
+    Renderer ..> World
+    Renderer ..> Camera
+    Renderer ..> Triangle
+    Renderer ..> Vertex
+
+    Application o-- Camera
+    Application o-- Renderer
+    Application o-- World
+    Application ..> Object
+
+    note "Matrix4: glm::dmat4\nVector3: glm::dvec3\nColor: sf::Color" as NoteAll
+    note left of Triangle : TrianglePositionView: special class\ndeclared inside Triangle for const iterating\nover triangle vertices positions
+    note bottom of Screen : DiscreteVector2: sf::Vector2i
+    note bottom of Storage2D : T: storing type
+    note left of World : ConstIterator: special class\ndeclared inside World for const iterating\nover world objects triangles
+    note top of Renderer : ZBufferVertex: struct storing\npixel depth and color
+    note right of Application : Handler: struct storing key and func\nfor handling pressing this key
+}
+
+@enduml

@@ -3,6 +3,7 @@
 
 #include "global_usings.h"
 #include "primitives.h"
+
 #include <vector>
 
 namespace ScratchRenderer {

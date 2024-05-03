@@ -2,16 +2,14 @@
 
 #include "configuration.h"
 #include "global_usings.h"
+
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 
 namespace ScratchRenderer {
 Object Loader::Load(const std::string &filepath) const {
-    if (!checkFileExtension(filepath)) {
-        throw(std::invalid_argument(std::string("Only ") + configuration::kModelExtension +
-                                    "files are supported"));
-    }
+    checkFileExtension(filepath);
     std::ifstream file(filepath);
     std::string line;
 
@@ -37,19 +35,7 @@ Object Loader::Load(const std::string &filepath) const {
             if (checkBlankLinesAndComments(line)) {
                 continue;
             }
-
-            std::istringstream lineReader(line);
-            double x, y, z, r, g, b, a;
-            lineReader >> x >> y >> z;
-            if (lineReader >> r >> g >> b) {
-                if (!(lineReader >> a)) {
-                    a = 1;
-                }
-                vertices.emplace_back(Vector4(x, y, z), Color(r * RGBMultiplier, g * RGBMultiplier,
-                                                              b * RGBMultiplier, a * RGBMultiplier));
-            } else {
-                vertices.emplace_back(Vector4(x, y, z));
-            }
+            processVertex(line, vertices);
             break;
         }
     }
@@ -59,39 +45,7 @@ Object Loader::Load(const std::string &filepath) const {
             if (checkBlankLinesAndComments(line)) {
                 continue;
             }
-
-            std::istringstream lineReader(line);
-            size_t faceVertexCount;
-            lineReader >> faceVertexCount;
-            std::vector<size_t> faceVerticesIdx;
-            faceVerticesIdx.reserve(faceVertexCount);
-            for (size_t j = 0; j < faceVertexCount; ++j) {
-                size_t idx;
-                lineReader >> idx;
-                faceVerticesIdx.emplace_back(idx);
-            }
-
-            bool isFaceColored = false;
-            double r, g, b, a;
-            if (lineReader >> r >> g >> b) {
-                isFaceColored = true;
-                if (!(lineReader >> a)) {
-                    a = 1;
-                }
-            }
-
-            for (size_t j = 0; j < faceVertexCount; ++j) {
-                if (isFaceColored) {
-                    for (size_t vi = j; vi <= j + 2; ++vi) {
-                        vertices[faceVerticesIdx[vi % faceVertexCount]].setColor(Color(
-                            r * RGBMultiplier, g * RGBMultiplier, b * RGBMultiplier, a * RGBMultiplier));
-                    }
-                }
-                triangles.emplace_back(vertices[faceVerticesIdx[j]],
-                                       vertices[faceVerticesIdx[(j + 1) % faceVertexCount]],
-                                       vertices[faceVerticesIdx[(j + 2) % faceVertexCount]]);
-            }
-
+            processSurface(line, vertices, triangles);
             break;
         }
     }
@@ -100,15 +54,79 @@ Object Loader::Load(const std::string &filepath) const {
     return Object(std::move(triangles));
 }
 
-bool Loader::checkFileExtension(const std::string &filepath) const {
-    if (filepath.length() < 4) {
-        return false;
+void Loader::checkFileExtension(const std::string &filepath) const {
+    if (filepath.length() < 4 ||
+        filepath.substr(filepath.length() - 4, filepath.length()) != configuration::kModelExtension) {
+        throw(std::invalid_argument(std::string("Only ") + configuration::kModelExtension +
+                                    "files are supported"));
     }
-    std::string extension = filepath.substr(filepath.length() - 4, filepath.length());
-    return extension == configuration::kModelExtension;
 }
 
 bool Loader::checkBlankLinesAndComments(const std::string &line) const {
     return line.length() == 0 || line[0] == '#';
+}
+
+void Loader::convertToCommonRGBCoordinates(double &r, double &g, double &b, double &a, bool aDefault) const {
+    if (r >= 0 && r <= 1 && g >= 0 && g <= 1 && b >= 0 && b <= 1 && a >= 0 && a <= 1) {
+        r *= RGBMultiplier;
+        g *= RGBMultiplier;
+        b *= RGBMultiplier;
+        a *= RGBMultiplier;
+    } else if (aDefault) {
+        a = RGBMultiplier;
+    }
+}
+
+void Loader::processVertex(const std::string &line, std::vector<Primitives::Vertex> &vertices) const {
+    std::istringstream lineReader(line);
+    double x, y, z, r, g, b, a;
+    bool aDefault = false;
+    lineReader >> x >> y >> z;
+    if (lineReader >> r >> g >> b) {
+        if (!(lineReader >> a)) {
+            aDefault = true;
+            a = 1;
+        }
+        convertToCommonRGBCoordinates(r, g, b, a, aDefault);
+        vertices.emplace_back(Vector4(x, y, z), Color(r, g, b, a));
+    } else {
+        vertices.emplace_back(Vector4(x, y, z));
+    }
+}
+
+void Loader::processSurface(const std::string &line, std::vector<Primitives::Vertex> &vertices,
+                            std::vector<Primitives::Triangle> &triangles) const {
+    std::istringstream lineReader(line);
+    size_t faceVertexCount;
+    lineReader >> faceVertexCount;
+    std::vector<size_t> faceVerticesIdx;
+    faceVerticesIdx.reserve(faceVertexCount);
+    for (size_t j = 0; j < faceVertexCount; ++j) {
+        size_t idx;
+        lineReader >> idx;
+        faceVerticesIdx.emplace_back(idx);
+    }
+
+    bool isFaceColored = false;
+    double r, g, b, a;
+    bool aDefault = false;
+    if (lineReader >> r >> g >> b) {
+        isFaceColored = true;
+        if (!(lineReader >> a)) {
+            a = 1;
+            aDefault = true;
+        }
+    }
+    convertToCommonRGBCoordinates(r, g, b, a, aDefault);
+
+    if (isFaceColored) {
+        for (size_t j = 0; j < faceVertexCount; ++j) {
+            vertices[faceVerticesIdx[j]].setColor(Color(r, g, b, a));
+        }
+    }
+    for (size_t j = 1; j + 1 < faceVertexCount; ++j) {
+        triangles.emplace_back(vertices[faceVerticesIdx[0]], vertices[faceVerticesIdx[j]],
+                               vertices[faceVerticesIdx[j + 1]]);
+    }
 }
 } // namespace ScratchRenderer

@@ -1,7 +1,7 @@
 #include "primitives.h"
 
 #include "glm/ext/scalar_relational.hpp"
-#include "glm/geometric.hpp"
+
 #include <cassert>
 
 namespace ScratchRenderer {
@@ -22,48 +22,17 @@ const Color &Vertex::getColor() const { return color_; }
 
 void Vertex::setColor(const Color &color) { color_ = color; }
 
+Vertex Vertex::interpolate(const Vertex &a, const Vertex &b, double coef) {
+    return Vertex(a.position_ * (1 - coef) + b.position_ * coef, a.color_ * (1 - coef) + b.color_ * coef);
+}
+
 sf::Color operator*(const sf::Color color, double coef) {
     sf::Color res = color;
     res.r *= coef;
     res.g *= coef;
     res.b *= coef;
+    res.a *= coef;
     return res;
-}
-
-Vertex Vertex::interpolate(const Vertex &a, const Vertex &b, double coef) {
-    return Vertex(a.position_ * (1 - coef) + b.position_ * coef, a.color_ * (1 - coef) + b.color_ * coef);
-}
-
-Triangle::Triangle(const Vertex &a, const Vertex &b, const Vertex &c) : vertices_{a, b, c} {
-    reorderVertices();
-};
-
-Triangle::Triangle(const std::array<Vertex, 3> vertices) : vertices_(vertices) { reorderVertices(); }
-
-Triangle Triangle::linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle) {
-    std::array<Vertex, 3> transformedVertices;
-    for (size_t i = 0; i < 3; ++i) {
-        transformedVertices[i] = transformMatrix * triangle.getYOrderedVertices()[i];
-    }
-    return Triangle(transformedVertices);
-}
-
-const std::array<Vertex, 3> &Triangle::getYOrderedVertices() const { return vertices_; }
-
-Triangle::TrianglePositionsView Triangle::getYOrderedVerticesPositions() const {
-    return TrianglePositionsView(vertices_);
-}
-
-void Triangle::reorderVertices() {
-    if (vertices_[0].getPosition().y > vertices_[1].getPosition().y) {
-        std::swap(vertices_[0], vertices_[1]);
-    }
-    if (vertices_[1].getPosition().y > vertices_[2].getPosition().y) {
-        std::swap(vertices_[1], vertices_[2]);
-    }
-    if (vertices_[0].getPosition().y > vertices_[1].getPosition().y) {
-        std::swap(vertices_[0], vertices_[1]);
-    }
 }
 
 const Vector4 &Triangle::TrianglePositionsView::ConstIterator::operator*() const {
@@ -105,6 +74,38 @@ size_t Triangle::TrianglePositionsView::size() const { return host_.size(); }
 const Vector4 &Triangle::TrianglePositionsView::operator[](size_t index) const {
     assert(index < this->size() && "Triangle vertex position index is out of range");
     return host_[index].getPosition();
+}
+
+Triangle::Triangle(const Vertex &a, const Vertex &b, const Vertex &c) : vertices_{a, b, c} {
+    reorderVertices();
+};
+
+Triangle::Triangle(const std::array<Vertex, 3> vertices) : vertices_(vertices) { reorderVertices(); }
+
+const std::array<Vertex, 3> &Triangle::getYOrderedVertices() const { return vertices_; }
+
+Triangle::TrianglePositionsView Triangle::getYOrderedVerticesPositions() const {
+    return TrianglePositionsView(vertices_);
+}
+
+void Triangle::reorderVertices() {
+    if (vertices_[0].getPosition().y > vertices_[1].getPosition().y) {
+        std::swap(vertices_[0], vertices_[1]);
+    }
+    if (vertices_[1].getPosition().y > vertices_[2].getPosition().y) {
+        std::swap(vertices_[1], vertices_[2]);
+    }
+    if (vertices_[0].getPosition().y > vertices_[1].getPosition().y) {
+        std::swap(vertices_[0], vertices_[1]);
+    }
+}
+
+Triangle Triangle::linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle) {
+    std::array<Vertex, 3> transformedVertices;
+    for (size_t i = 0; i < 3; ++i) {
+        transformedVertices[i] = transformMatrix * triangle.getYOrderedVertices()[i];
+    }
+    return Triangle(transformedVertices);
 }
 
 } // namespace Primitives

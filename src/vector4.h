@@ -4,9 +4,6 @@
 #include "glm/ext/vector_double4.hpp"
 #include "global_usings.h"
 
-// 3d point (x, y, z) -> 4d point (x, y, z, 1)
-// 4d point (x, y, z, w) -> 3d point (x / w, y / w, z / w)
-
 namespace ScratchRenderer {
 class Vector4 : public glm::dvec4 {
 public:

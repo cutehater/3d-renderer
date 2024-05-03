@@ -5,8 +5,8 @@
 #include "object.h"
 #include "renderer.h"
 #include "world.h"
-#include <SFML/Graphics.hpp>
 
+#include <SFML/Graphics.hpp>
 #include <functional>
 #include <vector>
 

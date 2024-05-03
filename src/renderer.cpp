@@ -1,6 +1,5 @@
 #include "renderer.h"
 
-#include <array>
 #include <utility>
 
 namespace ScratchRenderer {

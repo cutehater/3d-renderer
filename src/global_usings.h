@@ -1,11 +1,11 @@
 #ifndef GLOBAL_USINGS_H
 #define GLOBAL_USINGS_H
 
+#include "glm/ext/scalar_constants.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/vec3.hpp"
+
 #include <SFML/Graphics.hpp>
-#include <glm/ext/scalar_constants.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 
 namespace ScratchRenderer {
 
@@ -28,5 +28,3 @@ public:
 } // namespace ScratchRenderer
 
 #endif // GLOBAL_USINGS_H
-
-// TODO: preconditions in every function/method

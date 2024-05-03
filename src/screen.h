@@ -3,6 +3,7 @@
 
 #include "global_usings.h"
 #include "primitives.h"
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -24,7 +25,6 @@ private:
     size_t width_;
     size_t height_;
     std::vector<sf::Vertex> data_;
-    Matrix4 screen_projection_;
 };
 } // namespace ScratchRenderer
 

@@ -6,6 +6,7 @@
 #include "screen.h"
 #include "storage2d.h"
 #include "world.h"
+
 #include <SFML/Graphics.hpp>
 
 namespace ScratchRenderer {
@@ -17,7 +18,7 @@ public:
 
 private:
     struct ZBufferVertex {
-        static constexpr double kMaxDepth = 100;
+        static constexpr double kMaxDepth = 1;
 
         double depth = kMaxDepth;
         Color color = DefaultColor;

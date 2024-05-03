@@ -2,19 +2,17 @@
 
 #include "configuration.h"
 #include "glm/ext.hpp"
+
 #include <array>
-#include <iostream>
-#include <optional>
 
 namespace ScratchRenderer {
 
 Camera::Camera() : rotationMatrix_(IdentityMatrix), translationMatrix_(IdentityMatrix) {
-    buildTransformMatrix();
+    buildProjectionMatrix();
 }
 
 std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world) const {
     std::vector<Primitives::Triangle> projectedTriangles;
-    // all triangles will be clipped into two in worst case
     projectedTriangles.reserve(2 * world.size());
 
     for (const Primitives::Triangle &triangle : world) {
@@ -26,6 +24,16 @@ std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world
     }
 
     return projectedTriangles;
+}
+
+void Camera::translate(const Vector3 &axe, double length) {
+    translationMatrix_ =
+        glm::translate(translationMatrix_, Vector3(glm::transpose(rotationMatrix_) * Vector4(-axe) * length));
+}
+
+void Camera::rotate(const Vector3 &axe, double angle) {
+    rotationMatrix_ =
+        glm::rotate(rotationMatrix_, angle, Vector3(glm::transpose(rotationMatrix_) * Vector4(axe)));
 }
 
 Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives::Triangle &triangle) const {
@@ -42,7 +50,7 @@ Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives
 }
 
 bool Camera::isFront(const Vector4 &vertexPosition) const {
-    return vertexPosition.z > configuration::kNearPlaneDist;
+    return vertexPosition.z >= configuration::kNearPlaneDist;
 };
 
 std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
@@ -109,17 +117,7 @@ Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangl
     return Primitives::Triangle(projectedVertices);
 }
 
-void Camera::rotate(const Vector3 &axe, double angle) {
-    rotationMatrix_ =
-        glm::rotate(rotationMatrix_, angle, Vector3(glm::transpose(rotationMatrix_) * Vector4(axe)));
-}
-
-void Camera::translate(const Vector3 &axe, double length) {
-    translationMatrix_ =
-        glm::translate(translationMatrix_, Vector3(glm::transpose(rotationMatrix_) * Vector4(-axe) * length));
-}
-
-void Camera::buildTransformMatrix() {
+void Camera::buildProjectionMatrix() {
     constexpr double a = configuration::kAspectRatio;
     constexpr double n = configuration::kNearPlaneDist;
     constexpr double f = configuration::kFarPlaneDist;

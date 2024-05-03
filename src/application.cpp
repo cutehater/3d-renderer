@@ -2,7 +2,6 @@
 
 #include "configuration.h"
 #include "global_usings.h"
-#include "vector4.h"
 
 namespace ScratchRenderer {
 Application::Application()

@@ -3,14 +3,16 @@
 
 #include "object.h"
 #include "primitives.h"
+
 #include <vector>
 
 namespace ScratchRenderer {
 class World {
-private:
+public:
     class ConstIterator {
     public:
         ConstIterator(const World *world, size_t objectIdx, size_t triangleIdx);
+
         const Primitives::Triangle &operator*() const;
         ConstIterator &operator++();
         ConstIterator operator++(int);
@@ -23,7 +25,6 @@ private:
         size_t triangleIdx_;
     };
 
-public:
     World() = default;
 
     ConstIterator begin() const;

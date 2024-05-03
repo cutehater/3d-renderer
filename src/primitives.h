@@ -3,6 +3,7 @@
 
 #include "global_usings.h"
 #include "vector4.h"
+
 #include <SFML/Graphics.hpp>
 #include <array>
 
@@ -14,8 +15,6 @@ public:
     explicit Vertex(const Vector4 &position);
     Vertex(const Vector4 &position, const Color &color);
 
-    static Vertex interpolate(const Vertex &a, const Vertex &b, double coef);
-
     bool operator==(const Vertex &other) const;
     bool operator!=(const Vertex &other) const;
 
@@ -23,8 +22,9 @@ public:
 
     const Vector4 &getPosition() const;
     const Color &getColor() const;
-
     void setColor(const Color &color);
+
+    static Vertex interpolate(const Vertex &a, const Vertex &b, double coef);
 
 private:
     friend sf::Color operator*(const sf::Color color, double coef);
@@ -66,17 +66,17 @@ public:
         const Container &host_;
     };
 
-public:
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
     Triangle(const std::array<Vertex, 3> vertices);
-
-    static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle);
 
     const std::array<Vertex, 3> &getYOrderedVertices() const;
     TrianglePositionsView getYOrderedVerticesPositions() const;
 
+    static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle);
+
 private:
     void reorderVertices();
+
     std::array<Vertex, 3> vertices_;
 };
 
