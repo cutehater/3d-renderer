@@ -1,2 +1,0 @@
-/usr/bin/ar qc libScratchRenderer.a CMakeFiles/ScratchRenderer.dir/application.cpp.o CMakeFiles/ScratchRenderer.dir/camera.cpp.o CMakeFiles/ScratchRenderer.dir/object.cpp.o CMakeFiles/ScratchRenderer.dir/off_loader.cpp.o CMakeFiles/ScratchRenderer.dir/primitives.cpp.o CMakeFiles/ScratchRenderer.dir/renderer.cpp.o CMakeFiles/ScratchRenderer.dir/screen.cpp.o CMakeFiles/ScratchRenderer.dir/vector4.cpp.o CMakeFiles/ScratchRenderer.dir/world.cpp.o
-/usr/bin/ranlib libScratchRenderer.a
