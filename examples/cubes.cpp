@@ -1,9 +1,10 @@
-#include "src/application.h"
-#include "src/global_usings.h"
-#include "src/object.h"
-#include "src/off_loader.h"
+#include "application.h"
+#include "object.h"
+#include "off_loader.h"
 
 #include <utility>
+
+const double kCubeDistanceFromOrigin = 17;
 
 int main() {
     ScratchRenderer::Application app;
@@ -13,8 +14,8 @@ int main() {
         if (i % 2 == 0) {
             cube.rotate(ScratchRenderer::Axe::Z, std::numbers::pi / 4);
         }
-        cube.translate(ScratchRenderer::Axe::X, (i % 2 == 0) * 17 * ((i > 1) ? -1 : 1));
-        cube.translate(ScratchRenderer::Axe::Y, (i % 2 == 1) * 17 * ((i > 1) ? -1 : 1));
+        cube.translate(ScratchRenderer::Axe::X, (i % 2 == 0) * kCubeDistanceFromOrigin * ((i > 1) ? -1 : 1));
+        cube.translate(ScratchRenderer::Axe::Z, (i % 2 == 1) * kCubeDistanceFromOrigin * ((i > 1) ? -1 : 1));
         app.addObject(std::move(cube));
     }
     app.run();

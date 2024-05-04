@@ -13,7 +13,7 @@ DiscreteVector2 Screen::projectVertexToScreenAndDiscretize(const Primitives::Ver
 
 void Screen::setPixel(size_t i, size_t j, const Color &color) {
     if (isPixelValid(i, j)) {
-        data_.emplace_back(sf::Vertex(sf::Vector2f(i, height_ - j), color));
+        data_.emplace_back(sf::Vertex(sf::Vector2f(i, j), color));
     }
 }
 

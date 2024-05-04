@@ -1,28 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
-project(ScratchRenderer)
+project(ScratchRendererApplication)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(
-    app
-    main.cpp
-    src/application.cpp
-    src/camera.cpp
-    src/object.cpp
-    src/off_loader.cpp
-    src/primitives.cpp
-    src/renderer.cpp
-    src/screen.cpp
-    src/vector4.cpp
-    src/world.cpp
-)
+find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
-target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/extern/glm)
-
-target_link_libraries(
-    app
-    sfml-graphics
-    sfml-window
-    sfml-system
-)
+add_subdirectory(extern/glm)
+add_subdirectory(src)
+add_subdirectory(examples)

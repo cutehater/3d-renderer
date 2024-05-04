@@ -27,8 +27,6 @@ public:
     static Vertex interpolate(const Vertex &a, const Vertex &b, double coef);
 
 private:
-    friend sf::Color operator*(const sf::Color color, double coef);
-
     Vector4 position_ = Vector4();
     Color color_ = DefaultColor;
 };

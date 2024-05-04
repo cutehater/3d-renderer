@@ -22,11 +22,6 @@ const Color &Vertex::getColor() const { return color_; }
 
 void Vertex::setColor(const Color &color) { color_ = color; }
 
-Vertex Vertex::interpolate(const Vertex &a, const Vertex &b, double coef) {
-    assert(coef >= 0.0 && coef <= 1.0 && "interpolating coefficient should be between 0 and 1");
-    return Vertex(a.position_ * (1 - coef) + b.position_ * coef, a.color_ * (1 - coef) + b.color_ * coef);
-}
-
 sf::Color operator*(const sf::Color color, double coef) {
     sf::Color res = color;
     res.r *= coef;
@@ -34,6 +29,11 @@ sf::Color operator*(const sf::Color color, double coef) {
     res.b *= coef;
     res.a *= coef;
     return res;
+}
+
+Vertex Vertex::interpolate(const Vertex &a, const Vertex &b, double coef) {
+    assert(coef >= 0.0 && coef <= 1.0 && "interpolating coefficient should be between 0 and 1");
+    return Vertex(a.position_ * (1 - coef) + b.position_ * coef, a.color_ * (1 - coef) + b.color_ * coef);
 }
 
 const Vector4 &Triangle::TrianglePositionsView::ConstIterator::operator*() const {

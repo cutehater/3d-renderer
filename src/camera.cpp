@@ -28,8 +28,6 @@ std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world
 }
 
 void Camera::translate(const Vector3 &axe, double length) {
-    assert(!glm::equal(double(axe.length()), 0.0, Epsilon) && !glm::equal(length, 0.0, Epsilon) &&
-           "camera translation vector should have positive length");
     translationMatrix_ =
         glm::translate(translationMatrix_, Vector3(glm::transpose(rotationMatrix_) * Vector4(-axe) * length));
 }
@@ -37,7 +35,6 @@ void Camera::translate(const Vector3 &axe, double length) {
 void Camera::rotate(const Vector3 &axe, double angle) {
     assert(!glm::equal(double(axe.length()), 0.0, Epsilon) &&
            "camera rotation vector should have positive length");
-    assert(!glm::equal(angle, 0.0, Epsilon) && "camera rotation angle shouldn't be zero");
     rotationMatrix_ =
         glm::rotate(rotationMatrix_, angle, Vector3(glm::transpose(rotationMatrix_) * Vector4(axe)));
 }
