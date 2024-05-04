@@ -19,7 +19,7 @@ void Renderer::renderFrame(sf::RenderWindow &window, const World &world, const C
 }
 
 double Renderer::getInterpolateCoef(int left, int mid, int right) const {
-    assert(left != right && left <= mid && mid <= right && "Bad interpolating coefficient");
+    assert(left != right && left <= mid && mid <= right && "invalid order of vertices in renderer scanline");
     return double(mid - left) / (right - left);
 }
 
@@ -82,6 +82,7 @@ void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
 void Renderer::renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y) {
     int xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
     int xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
+    assert(xLeft <= xRight && "invalid order of vertices in renderer scanline");
 
     if (xLeft == xRight) {
         updateZBuffer(xLeft, y, (vLeft.getPosition().y < vRight.getPosition().y ? vLeft : vRight));

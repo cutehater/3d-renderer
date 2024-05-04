@@ -7,16 +7,15 @@
 namespace ScratchRenderer {
 template <typename T> class Storage2D {
 public:
-    Storage2D(size_t rows, size_t cols)
-        : rows_(rows), cols_(cols), data_(rows * cols){};
+    Storage2D(size_t rows, size_t cols) : rows_(rows), cols_(cols), data_(rows * cols){};
 
     T &operator()(size_t i, size_t j) {
-        assert(i < rows_ && j < cols_ && "Index out of storage bound");
+        assert(i < rows_ && j < cols_ && "index out of storage bound");
         return data_[cols_ * i + j];
     }
 
     const T &operator()(size_t i, size_t j) const {
-        assert(i < rows_ && j < cols_ && "Index out of storage bound");
+        assert(i < rows_ && j < cols_ && "index out of storage bound");
         return data_[cols_ * i + j];
     }
 
