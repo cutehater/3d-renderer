@@ -67,6 +67,9 @@ public:
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
     Triangle(const std::array<Vertex, 3> vertices);
 
+    bool operator==(const Triangle &other) const;
+    bool operator!=(const Triangle &other) const;
+
     const std::array<Vertex, 3> &getYOrderedVertices() const;
     TrianglePositionsView getYOrderedVerticesPositions() const;
 

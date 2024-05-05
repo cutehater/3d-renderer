@@ -33,22 +33,23 @@ namespace ScratchRenderer {
             + Vertex()
             + Vertex(position: Vector4)
             + Vertex(position: Vector4, color: Color)
-            + static interpolate(a: Vertex, b: Vertex, coef: double): Vertex
             + operator==(other: Vertex): bool
             + operator!=(other: Vertex): bool
             + operator*(m: Matrix4, v: Vertex): Vertex
             + getPosition(): const Vector4&
             + getColor(): const Color&
             + setColor(color: Color): void
+            + static interpolate(a: Vertex, b: Vertex, coef: double): Vertex
         }
 
         class Triangle {
             +Triangle(const Vertex &a, const Vertex &b, const Vertex &c)
             +Triangle(const std::array<Vertex, 3> vertices)
-            +static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle)
+            + operator==(other: Vertex): bool
+            + operator!=(other: Vertex): bool
             +getYOrderedVertices() const : std::array<Vertex, 3> &
             +getYOrderedVerticesPositions() const : TrianglePositionsView
-
+            +static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle)
             -reorderVertices()
             -vertices_: std::array<Vertex, 3>
         }
@@ -80,7 +81,6 @@ namespace ScratchRenderer {
         +projectWorldObjects(const World &world) const : std::vector<Primitives::Triangle>
         +translate(const Vector3 &axe, double length)
         +rotate(const Vector3 &axe, double angle)
-
         -buildProjectionMatrix()
         -convertTriangleToCameraCoordinates(const Primitives::Triangle &triangle) const : Primitives::Triangle
         -isFront(const Vector4 &vertexPosition) const : bool

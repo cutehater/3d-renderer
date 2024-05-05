@@ -33,7 +33,7 @@ void Camera::translate(const Vector3 &axe, double length) {
 }
 
 void Camera::rotate(const Vector3 &axe, double angle) {
-    assert(!glm::equal(double(axe.length()), 0.0, Epsilon) &&
+    assert(!glm::equal(glm::length(axe), 0.0, Epsilon) &&
            "camera rotation vector should have positive length");
     rotationMatrix_ =
         glm::rotate(rotationMatrix_, angle, Vector3(glm::transpose(rotationMatrix_) * Vector4(axe)));
@@ -131,9 +131,10 @@ void Camera::buildProjectionMatrix() {
     const double b = -a * n / e;
     const double t = a * n / e;
 
-    projectionMatrix_ = Matrix4{{2 * n / (r - l), 0, -(r + l) / (r - l), 0},
-                                {0, 2 * n / (t - b), -(t + b) / (t - b), 0},
-                                {0, 0, (f + n) / (f - n), -2 * n * f / (f - n)},
-                                {0, 0, 1, 0}};
+    // glm matrices written by columns
+    projectionMatrix_ = Matrix4{{2 * n / (r - l), 0, 0, 0},
+                                {0, 2 * n / (t - b), 0, 0},
+                                {-(r + l) / (r - l), -(t + b) / (t - b), (f + n) / (f - n), 1},
+                                {0, 0, -2 * n * f / (f - n), 0}};
 }
 } // namespace ScratchRenderer

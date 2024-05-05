@@ -14,7 +14,11 @@ bool Vertex::operator==(const Vertex &other) const { return position_ == other.p
 
 bool Vertex::operator!=(const Vertex &other) const { return !(*this == other); }
 
-Vertex operator*(const Matrix4 &m, const Vertex &v) { return Vertex(m * v.getPosition(), v.getColor()); }
+Vertex operator*(const Matrix4 &m, const Vertex &v) {
+    Vector4 newPosition(m * v.getPosition());
+    newPosition.normalize();
+    return Vertex(newPosition, v.getColor());
+}
 
 const Vector4 &Vertex::getPosition() const { return position_; }
 
@@ -82,6 +86,14 @@ Triangle::Triangle(const Vertex &a, const Vertex &b, const Vertex &c) : vertices
 };
 
 Triangle::Triangle(const std::array<Vertex, 3> vertices) : vertices_(vertices) { reorderVertices(); }
+
+bool Triangle::operator==(const Triangle &other) const {
+    auto otherVertices = other.getYOrderedVertices();
+    return vertices_[0] == otherVertices[0] && vertices_[1] == otherVertices[1] &&
+           vertices_[2] == otherVertices[2];
+}
+
+bool Triangle::operator!=(const Triangle &other) const { return !(*this == other); }
 
 const std::array<Vertex, 3> &Triangle::getYOrderedVertices() const { return vertices_; }
 

@@ -2,6 +2,8 @@
 
 #include "glm/ext/scalar_relational.hpp"
 
+#include <iostream>
+
 namespace ScratchRenderer {
 Vector4::Vector4() : glm::dvec4(0, 0, 0, 1) {}
 
@@ -70,7 +72,7 @@ void Vector4::normalize() {
 
 double Vector4::length() const {
     assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return (x * x + y * y + z * z) / w * w;
+    return (x * x + y * y + z * z) / (w * w);
 }
 
 } // namespace ScratchRenderer

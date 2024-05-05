@@ -33,7 +33,7 @@ int main() {
     Vector4 B(1, -1, 4);
     Vector4 C(1, -1, 6);
     Vector4 D(-1, -1, 6);
-    ScratchRenderer::Object pyramid({makeUsual(A, B, D, Color::Cyan), makeUsual(D, C, A, Color::Cyan),
+    ScratchRenderer::Object pyramid({makeUsual(A, B, D, Color::Cyan), makeUsual(D, B, C, Color::Cyan),
                                      makeGradient(O, A, B), makeGradient(O, C, B), makeGradient(O, C, D),
                                      makeGradient(O, A, D)});
 

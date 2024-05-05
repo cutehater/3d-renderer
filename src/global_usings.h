@@ -14,7 +14,7 @@ using Vector3 = glm::dvec3;
 using Matrix4 = glm::dmat4;
 using Color = sf::Color;
 
-static constexpr Matrix4 IdentityMatrix = glm::mat4(1.0f);
+static constexpr Matrix4 IdentityMatrix = glm::dmat4(1.0);
 static constexpr double Epsilon = glm::epsilon<double>();
 static const sf::Color DefaultColor = sf::Color::White;
 

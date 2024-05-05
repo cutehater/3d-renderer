@@ -3,6 +3,7 @@
 #include "glm/ext.hpp"
 
 #include <cassert>
+#include <iostream>
 
 namespace ScratchRenderer {
 Object::Object(std::vector<Primitives::Triangle> &&triangles) : triangles_(std::move(triangles)) {}
@@ -17,7 +18,7 @@ void Object::translate(const Vector3 &axe, double length) {
 }
 
 void Object::rotate(const Vector3 &axe, double angle) {
-    assert(!glm::equal(double(axe.length()), 0.0, Epsilon) &&
+    assert(!glm::equal(glm::length(axe), 0.0, Epsilon) &&
            "object rotation vector should have positive length");
     Matrix4 rotationMatrix = glm::rotate(IdentityMatrix, angle, axe);
     for (size_t i = 0; i < triangles_.size(); ++i) {
