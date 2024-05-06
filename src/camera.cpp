@@ -5,11 +5,30 @@
 
 #include <array>
 #include <cassert>
+#include <iostream>
 
 namespace ScratchRenderer {
 
 Camera::Camera() : rotationMatrix_(IdentityMatrix), translationMatrix_(IdentityMatrix) {
-    buildProjectionMatrix();
+    projectionMatrix_ = getProjectionMatrix();
+}
+
+Matrix4 Camera::getProjectionMatrix() const {
+    constexpr double a = configuration::kAspectRatio;
+    constexpr double n = configuration::kNearPlaneDist;
+    constexpr double f = configuration::kFarPlaneDist;
+    constexpr double alpha = configuration::kFieldOfViewAngle;
+    const double e = 1.0 / tan(alpha / 2);
+    const double l = -n / e;
+    const double r = n / e;
+    const double b = -a * n / e;
+    const double t = a * n / e;
+
+    // glm matrices written by columns
+    return Matrix4{{2 * n / (r - l), 0, 0, 0},
+                   {0, 2 * n / (t - b), 0, 0},
+                   {-(r + l) / (r - l), -(t + b) / (t - b), (f + n) / (f - n), 1},
+                   {0, 0, -2 * n * f / (f - n), 0}};
 }
 
 std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world) const {
@@ -20,6 +39,10 @@ std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world
         Primitives::Triangle projectedTriangle = convertTriangleToCameraCoordinates(triangle);
         std::vector<Primitives::Triangle> clippedTriangles = clipTriangleNearPlane(projectedTriangle);
         for (Primitives::Triangle &clippedTriangle : clippedTriangles) {
+            for (const auto &v : clippedTriangle.getYOrderedVerticesPositions()) {
+                std::cout << "(" << v.x << " " << v.y << " " << v.z << ") ";
+            }
+            std::cout << std::endl;
             projectedTriangles.emplace_back(projectTriangle(clippedTriangle));
         }
     }
@@ -72,8 +95,7 @@ std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitive
                                               configuration::kNearPlaneDist),
                                       triangle.getYOrderedVertices()[backIdx].getColor());
         }
-        Vector4 edgePlaneIntersection = verticesPositions[backIdx] + direction * backPlaneDist / direction.z;
-        double coef = (edgePlaneIntersection - verticesPositions[backIdx]).length() / direction.length();
+        double coef = backPlaneDist / direction.z;
         return Primitives::Vertex::interpolate(triangle.getYOrderedVertices()[backIdx],
                                                triangle.getYOrderedVertices()[frontIdx], coef);
     } else {
@@ -101,7 +123,7 @@ std::vector<Primitives::Triangle> Camera::clipTriangleNearPlane(const Primitives
         return {Primitives::Triangle(clippedVertices[0], clippedVertices[1], clippedVertices[2])};
     case 4:
         return {Primitives::Triangle(clippedVertices[0], clippedVertices[1], clippedVertices[2]),
-                Primitives::Triangle(clippedVertices[1], clippedVertices[2], clippedVertices[3])};
+                Primitives::Triangle(clippedVertices[0], clippedVertices[2], clippedVertices[3])};
     default:
         assert(false && "invalid number of vertices in clipping");
     }
@@ -118,23 +140,5 @@ Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangl
     }
 
     return Primitives::Triangle(projectedVertices);
-}
-
-void Camera::buildProjectionMatrix() {
-    constexpr double a = configuration::kAspectRatio;
-    constexpr double n = configuration::kNearPlaneDist;
-    constexpr double f = configuration::kFarPlaneDist;
-    constexpr double alpha = configuration::kFieldOfViewAngle;
-    const double e = 1.0 / tan(alpha / 2);
-    const double l = -n / e;
-    const double r = n / e;
-    const double b = -a * n / e;
-    const double t = a * n / e;
-
-    // glm matrices written by columns
-    projectionMatrix_ = Matrix4{{2 * n / (r - l), 0, 0, 0},
-                                {0, 2 * n / (t - b), 0, 0},
-                                {-(r + l) / (r - l), -(t + b) / (t - b), (f + n) / (f - n), 1},
-                                {0, 0, -2 * n * f / (f - n), 0}};
 }
 } // namespace ScratchRenderer

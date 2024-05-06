@@ -14,6 +14,7 @@ public:
     Camera();
 
     std::vector<Primitives::Triangle> projectWorldObjects(const World &world) const;
+    Matrix4 getProjectionMatrix() const;
 
     void translate(const Vector3 &axe, double length);
     void rotate(const Vector3 &axe, double angle);
@@ -25,7 +26,6 @@ private:
                                                              size_t vertexIdx) const;
     std::vector<Primitives::Triangle> clipTriangleNearPlane(const Primitives::Triangle &triangle) const;
     Primitives::Triangle projectTriangle(const Primitives::Triangle &triangle) const;
-    void buildProjectionMatrix();
 
     Matrix4 rotationMatrix_;
     Matrix4 translationMatrix_;

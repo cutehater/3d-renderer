@@ -78,10 +78,10 @@ namespace ScratchRenderer {
 
     class Camera {
         +Camera()
+        +getProjectionMatrix() const : Matrix4
         +projectWorldObjects(const World &world) const : std::vector<Primitives::Triangle>
         +translate(const Vector3 &axe, double length)
         +rotate(const Vector3 &axe, double angle)
-        -buildProjectionMatrix()
         -convertTriangleToCameraCoordinates(const Primitives::Triangle &triangle) const : Primitives::Triangle
         -isFront(const Vector4 &vertexPosition) const : bool
         -intersectEdgeNearPlane(const Primitives::Triangle &triangle, size_t vertexIdx) const : std::optional<Primitives::Vertex>
