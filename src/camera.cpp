@@ -5,7 +5,6 @@
 
 #include <array>
 #include <cassert>
-#include <iostream>
 
 namespace ScratchRenderer {
 
@@ -39,10 +38,6 @@ std::vector<Primitives::Triangle> Camera::projectWorldObjects(const World &world
         Primitives::Triangle projectedTriangle = convertTriangleToCameraCoordinates(triangle);
         std::vector<Primitives::Triangle> clippedTriangles = clipTriangleNearPlane(projectedTriangle);
         for (Primitives::Triangle &clippedTriangle : clippedTriangles) {
-            for (const auto &v : clippedTriangle.getYOrderedVerticesPositions()) {
-                std::cout << "(" << v.x << " " << v.y << " " << v.z << ") ";
-            }
-            std::cout << std::endl;
             projectedTriangles.emplace_back(projectTriangle(clippedTriangle));
         }
     }
