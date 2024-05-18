@@ -6,12 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(ScratchRenderer STATIC
     application.cpp
     camera.cpp
+    except.cpp
     object.cpp
     off_loader.cpp
     primitives.cpp
     renderer.cpp
     screen.cpp
     vector4.cpp
+    world_init.cpp
     world.cpp
 )
 

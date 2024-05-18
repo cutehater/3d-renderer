@@ -1,10 +1,15 @@
 #include "application.h"
+#include "except.h"
+#include "object.h"
 #include "off_loader.h"
+#include "world_init.h"
 
 int main() {
-    ScratchRenderer::Application app;
-    ScratchRenderer::Loader loader;
-    app.addObject(loader.Load("paste_your_model_name.off"));
-    app.run();
+    try {
+        ScratchRenderer::Application app(ScratchRenderer::modelInit("apple.off"));
+        app.run();
+    } catch (...) {
+        Except::react();
+    }
     return 0;
 }

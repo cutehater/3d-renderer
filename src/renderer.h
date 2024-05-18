@@ -7,14 +7,14 @@
 #include "storage2d.h"
 #include "world.h"
 
-#include <SFML/Graphics.hpp>
-
 namespace ScratchRenderer {
 class Renderer {
 public:
+    using Image = std::vector<sf::Vertex>;
+
     Renderer(size_t width, size_t height);
 
-    void renderFrame(sf::RenderWindow &window, const World &world, const Camera &camera);
+    const Image &renderFrame(const World &world, const Camera &camera);
 
 private:
     struct ZBufferVertex {
@@ -27,9 +27,13 @@ private:
 
     double getInterpolateCoef(int left, int mid, int right) const;
     void updateZBuffer(int i, int j, const Primitives::Vertex &v);
+    void sortVerticesByXCoordinate(Primitives::Vertex &vMin, Primitives::Vertex &vMid,
+                                   Primitives::Vertex &vMax);
+    DiscreteVector2 projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const;
+    void renderWorldTriangles(const std::vector<Primitives::Triangle> &triangles);
     void renderTriangle(const Primitives::Triangle &triangle);
     void renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y);
-    void drawFrame(sf::RenderWindow &window);
+    void fillScreen();
 
     ZBuffer zbuffer_;
     Screen screen_;

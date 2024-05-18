@@ -5,17 +5,10 @@
 namespace ScratchRenderer {
 Renderer::Renderer(size_t width, size_t height) : screen_(width, height), zbuffer_(width, height) {}
 
-void Renderer::renderFrame(sf::RenderWindow &window, const World &world, const Camera &camera) {
-    std::vector<Primitives::Triangle> projectedTriangles = std::move(camera.projectWorldObjects(world));
-    for (const Primitives::Triangle &triangle : projectedTriangles) {
-        renderTriangle(triangle);
-    }
-    for (size_t i = 0; i < screen_.getWidth(); ++i) {
-        for (size_t j = 0; j < screen_.getHeight(); ++j) {
-            screen_.setPixel(i, j, zbuffer_(i, j).color);
-        }
-    }
-    drawFrame(window);
+const Renderer::Image &Renderer::renderFrame(const World &world, const Camera &camera) {
+    renderWorldTriangles(camera.projectWorldObjects(world));
+    fillScreen();
+    return screen_.getDrawData();
 }
 
 double Renderer::getInterpolateCoef(int left, int mid, int right) const {
@@ -30,38 +23,53 @@ void Renderer::updateZBuffer(int i, int j, const Primitives::Vertex &v) {
     }
 }
 
+void Renderer::sortVerticesByXCoordinate(Primitives::Vertex &vMin, Primitives::Vertex &vMid,
+                                         Primitives::Vertex &vMax) {
+    int xMin = projectVertexToScreenAndDiscretize(vMin).x;
+    int xMid = projectVertexToScreenAndDiscretize(vMid).x;
+    int xMax = projectVertexToScreenAndDiscretize(vMax).x;
+    if (xMin > xMid) {
+        std::swap(xMin, xMid);
+        std::swap(vMin, vMid);
+    }
+    if (xMid > xMax) {
+        std::swap(xMid, xMax);
+        std::swap(vMid, vMax);
+    }
+    if (xMin > xMid) {
+        std::swap(xMin, xMid);
+        std::swap(vMin, vMid);
+    }
+}
+
+DiscreteVector2 Renderer::projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const {
+    int x = (v.getPosition().x + 1) / 2 * screen_.getWidth();
+    int y = (v.getPosition().y + 1) / 2 * screen_.getHeight();
+    return sf::Vector2i{x, y};
+}
+
+void Renderer::renderWorldTriangles(const std::vector<Primitives::Triangle> &triangles) {
+    for (const Primitives::Triangle &triangle : triangles) {
+        renderTriangle(triangle);
+    }
+}
+
 void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
     auto [vMin, vMid, vMax] = triangle.getYOrderedVertices();
-    int yMin = screen_.projectVertexToScreenAndDiscretize(vMin).y;
-    int yMid = screen_.projectVertexToScreenAndDiscretize(vMid).y;
-    int yMax = screen_.projectVertexToScreenAndDiscretize(vMax).y;
+    int yMin = projectVertexToScreenAndDiscretize(vMin).y;
+    int yMid = projectVertexToScreenAndDiscretize(vMid).y;
+    int yMax = projectVertexToScreenAndDiscretize(vMax).y;
 
     if (yMin == yMax) {
         if (!screen_.isPixelValid(0, yMin)) {
             return;
         }
-
-        int xMin = screen_.projectVertexToScreenAndDiscretize(vMin).x;
-        int xMid = screen_.projectVertexToScreenAndDiscretize(vMid).x;
-        int xMax = screen_.projectVertexToScreenAndDiscretize(vMax).x;
-        if (xMin > xMid) {
-            std::swap(xMin, xMid);
-            std::swap(vMin, vMid);
-        }
-        if (xMid > xMax) {
-            std::swap(xMid, xMax);
-            std::swap(vMid, vMax);
-        }
-        if (xMin > xMid) {
-            std::swap(xMin, xMid);
-            std::swap(vMin, vMid);
-        }
+        sortVerticesByXCoordinate(vMin, vMid, vMax);
         renderLine(vMin, vMax, yMin);
         return;
     }
 
     for (int y = std::max(0, yMin); y <= std::min(int(screen_.getHeight()) - 1, yMax); ++y) {
-
         Primitives::Vertex vLeft =
             Primitives::Vertex::interpolate(vMin, vMax, getInterpolateCoef(yMin, y, yMax));
         Primitives::Vertex vRight =
@@ -69,8 +77,8 @@ void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
                 ? Primitives::Vertex::interpolate(vMin, vMid, getInterpolateCoef(yMin, y, yMid))
                 : Primitives::Vertex::interpolate(vMid, vMax, getInterpolateCoef(yMid, y, yMax));
 
-        int xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
-        int xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
+        int xLeft = projectVertexToScreenAndDiscretize(vLeft).x;
+        int xRight = projectVertexToScreenAndDiscretize(vRight).x;
         if (xLeft > xRight) {
             std::swap(vLeft, vRight);
         }
@@ -80,23 +88,27 @@ void Renderer::renderTriangle(const Primitives::Triangle &triangle) {
 }
 
 void Renderer::renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y) {
-    int xLeft = screen_.projectVertexToScreenAndDiscretize(vLeft).x;
-    int xRight = screen_.projectVertexToScreenAndDiscretize(vRight).x;
+    int xLeft = projectVertexToScreenAndDiscretize(vLeft).x;
+    int xRight = projectVertexToScreenAndDiscretize(vRight).x;
     assert(xLeft <= xRight && "invalid order of vertices in renderer scanline");
 
     if (xLeft == xRight) {
         updateZBuffer(xLeft, y, (vLeft.getPosition().y < vRight.getPosition().y ? vLeft : vRight));
-    } else {
-        for (int x = std::max(0, xLeft); x <= std::min(int(screen_.getWidth()) - 1, xRight); ++x) {
-            updateZBuffer(
-                x, y, Primitives::Vertex::interpolate(vLeft, vRight, getInterpolateCoef(xLeft, x, xRight)));
-        }
+        return;
+    }
+    for (int x = std::max(0, xLeft); x <= std::min(int(screen_.getWidth()) - 1, xRight); ++x) {
+        updateZBuffer(x, y,
+                      Primitives::Vertex::interpolate(vLeft, vRight, getInterpolateCoef(xLeft, x, xRight)));
     }
 }
 
-void Renderer::drawFrame(sf::RenderWindow &window) {
-    window.draw(screen_.getDrawData().data(), screen_.getDrawData().size(), sf::Points);
+void Renderer::fillScreen() {
+    for (size_t i = 0; i < screen_.getWidth(); ++i) {
+        for (size_t j = 0; j < screen_.getHeight(); ++j) {
+            screen_.setPixel(i, j, zbuffer_(i, j).color);
+        }
+    }
     zbuffer_.clear();
-    screen_.clear();
 }
+
 } // namespace ScratchRenderer

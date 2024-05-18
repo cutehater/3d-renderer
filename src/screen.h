@@ -12,14 +12,13 @@ class Screen {
 public:
     Screen(size_t width, size_t height);
 
-    DiscreteVector2 projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const;
-    void setPixel(size_t i, size_t j, const Color &color);
     const std::vector<sf::Vertex> &getDrawData() const;
 
+    void setPixel(size_t i, size_t j, const Color &color);
     bool isPixelValid(size_t i, size_t j) const;
+
     size_t getWidth() const;
     size_t getHeight() const;
-    void clear();
 
 private:
     size_t width_;

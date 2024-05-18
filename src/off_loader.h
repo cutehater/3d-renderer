@@ -14,11 +14,13 @@ private:
     static constexpr double RGBMultiplier = 255;
 
     void checkFileExtension(const std::string &filepath) const;
-    bool checkBlankLinesAndComments(const std::string &line) const;
+    bool isBlankLineOrComment(const std::string &line) const;
     void convertToCommonRGBCoordinates(double &r, double &g, double &b, double &a, bool aDefault) const;
-    void processVertex(const std::string &line, std::vector<Primitives::Vertex> &vertices) const;
-    void processSurface(const std::string &line, std::vector<Primitives::Vertex> &vertices,
-                        std::vector<Primitives::Triangle> &triangles) const;
+    void getVertexFaceEdgeCount(std::ifstream &file, size_t &vertexCount, size_t &faceCount) const;
+    void processVertices(std::ifstream &file, size_t vertexCount,
+                         std::vector<Primitives::Vertex> &vertices) const;
+    void processSurfaces(std::ifstream &file, size_t faceCount, std::vector<Primitives::Vertex> &vertices,
+                         std::vector<Primitives::Triangle> &triangles) const;
 };
 } // namespace ScratchRenderer
 

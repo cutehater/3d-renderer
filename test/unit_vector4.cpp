@@ -58,23 +58,18 @@ TEST(Vector4Test, Equality) {
 
 TEST(Vector4Test, Normalize) {
     Vector4 v(glm::dvec4(2.0, 4.0, 6.0, 2.0));
-    v.normalize();
 
     EXPECT_DOUBLE_EQ(v.x, 1.0);
     EXPECT_DOUBLE_EQ(v.y, 2.0);
     EXPECT_DOUBLE_EQ(v.z, 3.0);
     EXPECT_DOUBLE_EQ(v.w, 1.0);
 
-    Vector4 zero(glm::dvec4(2.0, 4.0, 6.0, 0.0));
-    ASSERT_DEATH(zero.normalize(), ".*");
+    ASSERT_DEATH(Vector4(glm::dvec4(2.0, 4.0, 6.0, 0.0)), ".*");
 }
 
 TEST(Vector4Test, Length) {
     Vector4 v(glm::dvec4(2.0, 4.0, 6.0, 2.0));
     double length = v.length();
 
-    EXPECT_DOUBLE_EQ(length, 14.0);
-
-    Vector4 zero(glm::dvec4(2.0, 4.0, 6.0, 0.0));
-    ASSERT_DEATH(zero.length(), ".*");
+    EXPECT_DOUBLE_EQ(length, sqrt(14.0));
 }

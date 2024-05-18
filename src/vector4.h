@@ -12,15 +12,15 @@ public:
     Vector4(const Vector3 &v);
     Vector4(const glm::dvec4 &v);
 
-    friend Vector4 operator+(const Vector4 &v, const Vector4 &u);
-    friend Vector4 operator-(const Vector4 &v, const Vector4 &u);
-    friend Vector4 operator*(const Vector4 &v, double k);
-    friend Vector4 operator/(const Vector4 &v, double k);
-
     Vector4 &operator+=(const Vector4 &other);
     Vector4 &operator-=(const Vector4 &other);
     Vector4 &operator*=(double k);
     Vector4 &operator/=(double k);
+
+    friend Vector4 operator+(const Vector4 &v, const Vector4 &u);
+    friend Vector4 operator-(const Vector4 &v, const Vector4 &u);
+    friend Vector4 operator*(const Vector4 &v, double k);
+    friend Vector4 operator/(const Vector4 &v, double k);
 
     bool operator==(const Vector4 &other) const;
     bool operator!=(const Vector4 &other) const;

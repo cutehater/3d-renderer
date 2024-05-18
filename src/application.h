@@ -13,9 +13,9 @@
 namespace ScratchRenderer {
 class Application {
 public:
-    Application();
+    using Initializer = std::function<void(World &)>;
+    Application(Initializer init);
 
-    void addObject(Object &&object);
     void run();
 
 private:
@@ -25,6 +25,9 @@ private:
     };
 
     void createKeyboardHandlers();
+    bool hasWindowClosed();
+    void handleKeyboardInput();
+    void drawFrame(const Renderer::Image &image);
 
     Renderer renderer_;
     World world_;

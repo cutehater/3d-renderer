@@ -1,78 +1,74 @@
 #include "vector4.h"
-
 #include "glm/ext/scalar_relational.hpp"
-
-#include <iostream>
+#include <cassert>
 
 namespace ScratchRenderer {
+
 Vector4::Vector4() : glm::dvec4(0, 0, 0, 1) {}
 
 Vector4::Vector4(double x, double y, double z) : glm::dvec4(x, y, z, 1) {}
 
 Vector4::Vector4(const Vector3 &v) : glm::dvec4(v.x, v.y, v.z, 1) {}
 
-Vector4::Vector4(const glm::dvec4 &v) : glm::dvec4(v.x, v.y, v.z, v.w) {}
-
-Vector4 operator+(const Vector4 &v, const Vector4 &u) {
-    assert(!glm::equal(v.w * u.w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return Vector4(v.x / v.w + u.x / u.w, v.y / v.w + u.y / u.w, v.z / v.w + u.z / u.w);
-}
-
-Vector4 operator-(const Vector4 &v, const Vector4 &u) {
-    assert(!glm::equal(v.w * u.w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return Vector4(v.x / v.w - u.x / u.w, v.y / v.w - u.y / u.w, v.z / v.w - u.z / u.w);
-}
-
-Vector4 operator*(const Vector4 &v, double k) {
-    assert(!glm::equal(v.w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return Vector4(v.x / v.w * k, v.y / v.w * k, v.z / v.w * k);
-}
-
-Vector4 operator/(const Vector4 &v, double k) {
-    assert(!glm::equal(v.w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return v * (1.0 / k);
+Vector4::Vector4(const glm::dvec4 &v) : glm::dvec4(v.x, v.y, v.z, v.w) {
+    assert(!glm::equal(w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
+    normalize();
 }
 
 Vector4 &Vector4::operator+=(const Vector4 &other) {
-    *this = *this + other;
+    x += other.x;
+    y += other.y;
+    z += other.z;
     return *this;
 }
 
 Vector4 &Vector4::operator-=(const Vector4 &other) {
-    *this = *this - other;
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
     return *this;
 }
 
 Vector4 &Vector4::operator*=(double k) {
-    *this = *this * k;
+    x *= k;
+    y *= k;
+    z *= k;
     return *this;
 }
 
 Vector4 &Vector4::operator/=(double k) {
-    *this = *this / k;
+    assert(!glm::equal(k, 0.0, Epsilon) && "vector division on zero");
+    x /= k;
+    y /= k;
+    z /= k;
     return *this;
 }
 
+Vector4 operator+(const Vector4 &v, const Vector4 &u) { return Vector4(v.x + u.x, v.y + u.y, v.z + u.z); }
+
+Vector4 operator-(const Vector4 &v, const Vector4 &u) { return Vector4(v.x - u.x, v.y - u.y, v.z - u.z); }
+
+Vector4 operator*(const Vector4 &v, double k) { return Vector4(v.x * k, v.y * k, v.z * k); }
+
+Vector4 operator/(const Vector4 &v, double k) {
+    assert(!glm::equal(k, 0.0, Epsilon) && "vector division on zero");
+    return v * (1.0 / k);
+}
+
 bool Vector4::operator==(const Vector4 &other) const {
-    assert(!glm::equal(this->w * other.w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return glm::equal(this->x * other.w, this->w * other.x, Epsilon) &&
-           glm::equal(this->y * other.w, this->w * other.y, Epsilon) &&
-           glm::equal(this->z * other.w, this->w * other.z, Epsilon);
+    return glm::equal(x, other.x, Epsilon) && glm::equal(y, other.y, Epsilon) &&
+           glm::equal(z, other.z, Epsilon);
 }
 
 bool Vector4::operator!=(const Vector4 &other) const { return !(*this == other); }
 
 void Vector4::normalize() {
-    assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
     x /= w;
     y /= w;
     z /= w;
     w = 1;
 }
 
-double Vector4::length() const {
-    assert(!glm::equal(this->w, 0.0, Epsilon) && "w-coordinate shouldn't be null");
-    return (x * x + y * y + z * z) / (w * w);
-}
+double Vector4::length() const { return std::sqrt(x * x + y * y + z * z); }
 
 } // namespace ScratchRenderer

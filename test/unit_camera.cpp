@@ -13,9 +13,9 @@ using Triangle = Primitives::Triangle;
 
 TEST(CameraTest, ProjectVisibleTriangle) {
     Camera camera;
-    Triangle visibleTriangle(Vertex(Vector4(3.0, 4.0, configuration::kNearPlaneDist + Epsilon)),
-                             Vertex(Vector4(1.0, 5.0, configuration::kNearPlaneDist + Epsilon)),
-                             Vertex(Vector4(11.0, 20.5, configuration::kNearPlaneDist + Epsilon)));
+    Triangle visibleTriangle(Vertex(Vector4(3.0, 4.0, configuration::gNearPlaneDist + Epsilon)),
+                             Vertex(Vector4(1.0, 5.0, configuration::gNearPlaneDist + Epsilon)),
+                             Vertex(Vector4(11.0, 20.5, configuration::gNearPlaneDist + Epsilon)));
     World world;
     world.addObject(Object({visibleTriangle}));
     std::vector<Triangle> cameraProjection = camera.projectWorldObjects(world);
@@ -26,9 +26,9 @@ TEST(CameraTest, ProjectVisibleTriangle) {
 
 TEST(CameraTest, ProjectInvisibleTriangle) {
     Camera camera;
-    Triangle invisibleTriangle(Vertex(Vector4(0.0, 0.0, configuration::kNearPlaneDist - Epsilon)),
-                               Vertex(Vector4(1.0, 0.0, configuration::kNearPlaneDist - Epsilon)),
-                               Vertex(Vector4(0.0, 1.0, configuration::kNearPlaneDist - Epsilon)));
+    Triangle invisibleTriangle(Vertex(Vector4(0.0, 0.0, configuration::gNearPlaneDist - Epsilon)),
+                               Vertex(Vector4(1.0, 0.0, configuration::gNearPlaneDist - Epsilon)),
+                               Vertex(Vector4(0.0, 1.0, configuration::gNearPlaneDist - Epsilon)));
     World world;
     world.addObject(Object({invisibleTriangle}));
     std::vector<Triangle> cameraProjection = camera.projectWorldObjects(world);
@@ -37,12 +37,12 @@ TEST(CameraTest, ProjectInvisibleTriangle) {
 }
 
 TEST(CameraTest, ProjectOneVisibleVertexClippedTriangle) {
-    Triangle oneVisibleVertexTriangle(Vertex(Vector4(0.0, 0.0, configuration::kNearPlaneDist + 2)),
-                                      Vertex(Vector4(1.0, 0.0, configuration::kNearPlaneDist - 1)),
-                                      Vertex(Vector4(-1.0, 0.0, configuration::kNearPlaneDist - 1)));
-    Triangle oneVisibleVertexClippedTriangle(Vertex(Vector4(0.0, 0.0, configuration::kNearPlaneDist + 2)),
-                                             Vertex(Vector4(2.0 / 3.0, 0.0, configuration::kNearPlaneDist)),
-                                             Vertex(Vector4(-2.0 / 3.0, 0.0, configuration::kNearPlaneDist)));
+    Triangle oneVisibleVertexTriangle(Vertex(Vector4(0.0, 0.0, configuration::gNearPlaneDist + 2)),
+                                      Vertex(Vector4(1.0, 0.0, configuration::gNearPlaneDist - 1)),
+                                      Vertex(Vector4(-1.0, 0.0, configuration::gNearPlaneDist - 1)));
+    Triangle oneVisibleVertexClippedTriangle(Vertex(Vector4(0.0, 0.0, configuration::gNearPlaneDist + 2)),
+                                             Vertex(Vector4(2.0 / 3.0, 0.0, configuration::gNearPlaneDist)),
+                                             Vertex(Vector4(-2.0 / 3.0, 0.0, configuration::gNearPlaneDist)));
 
     Camera camera;
     World world;
@@ -55,14 +55,14 @@ TEST(CameraTest, ProjectOneVisibleVertexClippedTriangle) {
 }
 
 TEST(CameraTest, ProjectTwoVisibleVerticesClippedTriangle) {
-    Triangle twoVisibleVerticesTriangle(Vertex(Vector4(1.0, 0.0, configuration::kNearPlaneDist + 2)),
-                                        Vertex(Vector4(-1.0, 0.0, configuration::kNearPlaneDist + 2)),
-                                        Vertex(Vector4(0.0, 0.0, configuration::kNearPlaneDist - 1)));
+    Triangle twoVisibleVerticesTriangle(Vertex(Vector4(1.0, 0.0, configuration::gNearPlaneDist + 2)),
+                                        Vertex(Vector4(-1.0, 0.0, configuration::gNearPlaneDist + 2)),
+                                        Vertex(Vector4(0.0, 0.0, configuration::gNearPlaneDist - 1)));
     std::vector<Vertex> clippedVertices{
-        Vertex(Vector4(1.0, 0.0, configuration::kNearPlaneDist + 2)),
-        Vertex(Vector4(-1.0, 0.0, configuration::kNearPlaneDist + 2)),
-        Vertex(Vector4(-1.0 / 3.0, 0.0, configuration::kNearPlaneDist)),
-        Vertex(Vector4(1.0 / 3.0, 0.0, configuration::kNearPlaneDist)),
+        Vertex(Vector4(1.0, 0.0, configuration::gNearPlaneDist + 2)),
+        Vertex(Vector4(-1.0, 0.0, configuration::gNearPlaneDist + 2)),
+        Vertex(Vector4(-1.0 / 3.0, 0.0, configuration::gNearPlaneDist)),
+        Vertex(Vector4(1.0 / 3.0, 0.0, configuration::gNearPlaneDist)),
     };
     std::vector<Triangle> clippedTrianglesVariant1{
         Triangle(clippedVertices[0], clippedVertices[1], clippedVertices[2]),
@@ -102,9 +102,9 @@ TEST(CameraTest, Translate) {
     double coef = 0.5;
     camera.translate(axe, coef);
 
-    std::array<Vertex, 3> vertices{Vertex(Vector4(3.0, 4.0, configuration::kNearPlaneDist + 2)),
-                                   Vertex(Vector4(1.0, 5.0, configuration::kNearPlaneDist + 2)),
-                                   Vertex(Vector4(11.0, 20.5, configuration::kNearPlaneDist + 2))};
+    std::array<Vertex, 3> vertices{Vertex(Vector4(3.0, 4.0, configuration::gNearPlaneDist + 2)),
+                                   Vertex(Vector4(1.0, 5.0, configuration::gNearPlaneDist + 2)),
+                                   Vertex(Vector4(11.0, 20.5, configuration::gNearPlaneDist + 2))};
     Triangle visibleTriangle(vertices);
     std::array<Vertex, 3> translatedVertices;
     for (size_t i = 0; i < 3; ++i) {
@@ -139,9 +139,9 @@ TEST(CameraTest, Rotate) {
         {0, 0, 0, 1},
     };
 
-    Triangle visibleTriangle(Vertex(Vector4(3.0, 4.0, configuration::kNearPlaneDist + 2)),
-                             Vertex(Vector4(1.0, 5.0, configuration::kNearPlaneDist + 2)),
-                             Vertex(Vector4(11.0, 20.5, configuration::kNearPlaneDist + 2)));
+    Triangle visibleTriangle(Vertex(Vector4(3.0, 4.0, configuration::gNearPlaneDist + 2)),
+                             Vertex(Vector4(1.0, 5.0, configuration::gNearPlaneDist + 2)),
+                             Vertex(Vector4(11.0, 20.5, configuration::gNearPlaneDist + 2)));
     Triangle rotatedVisibleTriangle =
         Triangle::linearTransform(glm::transpose(rotationMatrix), visibleTriangle);
 
@@ -177,9 +177,9 @@ TEST(CameraTest, RotateThanTranslate) {
         {0, 0, 0, 1},
     };
 
-    std::array<Vertex, 3> vertices{Vertex(Vector4(3.0, 4.0, configuration::kNearPlaneDist + 2)),
-                                   Vertex(Vector4(1.0, 5.0, configuration::kNearPlaneDist + 2)),
-                                   Vertex(Vector4(11.0, 20.5, configuration::kNearPlaneDist + 2))};
+    std::array<Vertex, 3> vertices{Vertex(Vector4(3.0, 4.0, configuration::gNearPlaneDist + 2)),
+                                   Vertex(Vector4(1.0, 5.0, configuration::gNearPlaneDist + 2)),
+                                   Vertex(Vector4(11.0, 20.5, configuration::gNearPlaneDist + 2))};
     Triangle visibleTriangle(vertices);
     std::array<Vertex, 3> translatedVertices;
     for (size_t i = 0; i < 3; ++i) {

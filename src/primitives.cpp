@@ -14,10 +14,15 @@ bool Vertex::operator==(const Vertex &other) const { return position_ == other.p
 
 bool Vertex::operator!=(const Vertex &other) const { return !(*this == other); }
 
+Vertex &Vertex::operator*=(const Matrix4 &m) {
+    position_ = m * position_;
+    return *this;
+}
+
 Vertex operator*(const Matrix4 &m, const Vertex &v) {
-    Vector4 newPosition(m * v.getPosition());
-    newPosition.normalize();
-    return Vertex(newPosition, v.getColor());
+    Vertex vNew = v;
+    vNew *= m;
+    return vNew;
 }
 
 const Vector4 &Vertex::getPosition() const { return position_; }
@@ -56,6 +61,8 @@ Triangle::TrianglePositionsView::ConstIterator::operator++(int) {
     return tmp;
 }
 
+const Vector4 *Triangle::TrianglePositionsView::ConstIterator::operator->() const { return &(**this); }
+
 bool Triangle::TrianglePositionsView::ConstIterator::operator==(
     Triangle::TrianglePositionsView::ConstIterator other) const {
     return iter_ == other.iter_;
@@ -67,18 +74,18 @@ bool Triangle::TrianglePositionsView::ConstIterator::operator!=(
 }
 
 Triangle::TrianglePositionsView::ConstIterator Triangle::TrianglePositionsView::begin() const {
-    return ConstIterator(host_.begin());
+    return ConstIterator(host_.get().begin());
 }
 
 Triangle::TrianglePositionsView::ConstIterator Triangle::TrianglePositionsView::end() const {
-    return ConstIterator(host_.end());
+    return ConstIterator(host_.get().end());
 }
 
-size_t Triangle::TrianglePositionsView::size() const { return host_.size(); }
+size_t Triangle::TrianglePositionsView::size() const { return host_.get().size(); }
 
 const Vector4 &Triangle::TrianglePositionsView::operator[](size_t index) const {
-    assert(index < this->size() && "triangle vertex position index is out of range");
-    return host_[index].getPosition();
+    assert(index < size() && "triangle vertex position index is out of range");
+    return host_.get()[index].getPosition();
 }
 
 Triangle::Triangle(const Vertex &a, const Vertex &b, const Vertex &c) : vertices_{a, b, c} {
@@ -101,6 +108,14 @@ Triangle::TrianglePositionsView Triangle::getYOrderedVerticesPositions() const {
     return TrianglePositionsView(vertices_);
 }
 
+Triangle Triangle::linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle) {
+    std::array<Vertex, 3> transformedVertices;
+    for (size_t i = 0; i < 3; ++i) {
+        transformedVertices[i] = transformMatrix * triangle.getYOrderedVertices()[i];
+    }
+    return Triangle(transformedVertices);
+}
+
 void Triangle::reorderVertices() {
     if (vertices_[0].getPosition().y > vertices_[1].getPosition().y) {
         std::swap(vertices_[0], vertices_[1]);
@@ -111,14 +126,6 @@ void Triangle::reorderVertices() {
     if (vertices_[0].getPosition().y > vertices_[1].getPosition().y) {
         std::swap(vertices_[0], vertices_[1]);
     }
-}
-
-Triangle Triangle::linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle) {
-    std::array<Vertex, 3> transformedVertices;
-    for (size_t i = 0; i < 3; ++i) {
-        transformedVertices[i] = transformMatrix * triangle.getYOrderedVertices()[i];
-    }
-    return Triangle(transformedVertices);
 }
 
 } // namespace Primitives

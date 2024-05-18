@@ -6,19 +6,19 @@
 
 namespace ScratchRenderer {
 namespace configuration {
-constexpr char kWindowName[] = "3d-renderer";
-constexpr char kModelExtension[] = ".off";
+constexpr char gWindowName[] = "3d-renderer";
+constexpr char gModelExtension[] = ".off";
 
-constexpr size_t kWindowWidth = 1400;
-constexpr size_t kWindowHeight = 1000;
-constexpr double kAspectRatio = double(kWindowHeight) / kWindowWidth;
+constexpr size_t gWindowWidth = 1400;
+constexpr size_t gWindowHeight = 1000;
+constexpr double gAspectRatio = double(gWindowHeight) / gWindowWidth;
 
-constexpr double kNearPlaneDist = 1;
-constexpr double kFarPlaneDist = 1000;
-constexpr double kFieldOfViewAngle = std::numbers::pi / 8;
+constexpr double gNearPlaneDist = 1;
+constexpr double gFarPlaneDist = 1000;
+constexpr double gFieldOfViewAngle = std::numbers::pi / 8;
 
-constexpr double kCameraTranslateSpeed = 0.3;
-constexpr double kCameraRotateSpeed = 0.05;
+constexpr double gCameraTranslateSpeed = 0.3;
+constexpr double gCameraRotateSpeed = 0.05;
 } // namespace configuration
 } // namespace ScratchRenderer
 

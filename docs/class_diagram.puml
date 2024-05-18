@@ -2,51 +2,52 @@
 
 namespace ScratchRenderer {
     class Vector4 {
-        + x: double
-        + y: double
-        + z: double
-        + w: double
+        +x: double
+        +y: double
+        +z: double
+        +w: double
 
-        + Vector4()
-        + Vector4(x: double, y: double, z: double)
-        + Vector4(v: Vector3)
-        + Vector4(v: glm::dvec4)
-        + operator+(v: Vector4, u: Vector4): Vector4
-        + operator-(v: Vector4, u: Vector4): Vector4
-        + operator*(v: Vector4, k: double): Vector4
-        + operator/(v: Vector4, k: double): Vector4
-        + operator+=(other: Vector4): Vector4
-        + operator-=(other: Vector4): Vector4
-        + operator*=(k: double): Vector4
-        + operator/=(k: double): Vector4
-        + operator==(other: Vector4): bool
-        + operator!=(other: Vector4): bool
-        + normalize(): void
-        + length(): double
+        +Vector4()
+        +Vector4(x: double, y: double, z: double)
+        +Vector4(v: Vector3)
+        +Vector4(v: glm::dvec4)
+        +operator+=(other: Vector4): Vector4&
+        +operator-=(other: Vector4): Vector4&
+        +operator*=(k: double): Vector4&
+        +operator/=(k: double): Vector4&
+        +operator+(v: Vector4, u: Vector4): Vector4
+        +operator-(v: Vector4, u: Vector4): Vector4
+        +operator*(v: Vector4, k: double): Vector4
+        +operator/(v: Vector4, k: double): Vector4
+        +operator==(other: Vector4): bool
+        +operator!=(other: Vector4): bool
+        +normalize()
+        +length(): double
     }
 
     namespace Primitives {
         class Vertex {
-            - position_: Vector4
-            - color_: Color
+            -position_: Vector4
+            -color_: Color
 
-            + Vertex()
-            + Vertex(position: Vector4)
-            + Vertex(position: Vector4, color: Color)
-            + operator==(other: Vertex): bool
-            + operator!=(other: Vertex): bool
-            + operator*(m: Matrix4, v: Vertex): Vertex
-            + getPosition(): const Vector4&
-            + getColor(): const Color&
-            + setColor(color: Color): void
-            + static interpolate(a: Vertex, b: Vertex, coef: double): Vertex
+            +Vertex()
+            +Vertex(position: Vector4)
+            +Vertex(position: Vector4, color: Color)
+            +operator==(other: Vertex): bool
+            +operator!=(other: Vertex): bool
+            +operator*=(const Matrix4 &m): Vertex&
+            +operator*(m: Matrix4, v: Vertex): Vertex
+            +getPosition(): const Vector4&
+            +getColor(): const Color&
+            +setColor(color: Color)
+            +static interpolate(a: Vertex, b: Vertex, coef: double): Vertex
         }
 
         class Triangle {
             +Triangle(const Vertex &a, const Vertex &b, const Vertex &c)
             +Triangle(const std::array<Vertex, 3> vertices)
-            + operator==(other: Vertex): bool
-            + operator!=(other: Vertex): bool
+            +operator==(other: Vertex): bool
+            +operator!=(other: Vertex): bool
             +getYOrderedVertices() const : std::array<Vertex, 3> &
             +getYOrderedVerticesPositions() const : TrianglePositionsView
             +static Triangle linearTransform(const Matrix4 &transformMatrix, const Triangle &triangle)
@@ -56,7 +57,6 @@ namespace ScratchRenderer {
     }
 
     class Object {
-        +Object()
         +Object(std::vector<Primitives::Triangle> &&triangles)
         +getTriangles() const : std::vector<Primitives::Triangle> &
         +translate(const Vector3 &axe, double length)
@@ -95,13 +95,11 @@ namespace ScratchRenderer {
 
     class Screen {
         +Screen(size_t width, size_t height)
-        +projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const : DiscreteVector2
-        +setPixel(size_t i, size_t j, const Color &color)
         +getDrawData() const : const std::vector<sf::Vertex> &
         +isPixelValid(size_t i, size_t j) const : bool
         +getWidth() const : size_t
         +getHeight() const : size_t
-        +clear()
+        -setPixel(size_t i, size_t j, const Color &color)
 
         -width_: size_t
         -height_: size_t
@@ -113,11 +111,12 @@ namespace ScratchRenderer {
 
         -static constexpr double RGBMultiplier = 255
         -checkFileExtension(const std::string &filepath) const : bool
-        -checkBlankLinesAndComments(const std::string &line) const : bool
-        -convertToCommonRGBCoordinates(double &r, double &g, double &b, double &a, bool aDefault) const : void;
-        -processVertex(const std::string &line, std::vector<Primitives::Vertex> &vertices) const : void;
-        -processSurface(const std::string &line, std::vector<Primitives::Vertex> &vertices,
-                        std::vector<Primitives::Triangle> &triangles) const : void;
+        -isBlankLineOrComment(const std::string &line) const : bool
+        -convertToCommonRGBCoordinates(double &r, double &g, double &b, double &a, bool aDefault) const
+        -getVertexFaceEdgeCount(std::ifstream &file, size_t &vertexCount, size_t &faceCount) const
+        -processVertices(std::ifstream &file, size_t vertexCount, std::vector<Primitives::Vertex> &vertices) const
+        -processSurfaces(std::ifstream &file, size_t faceCount, std::vector<Primitives::Vertex> &vertices,
+                        std::vector<Primitives::Triangle> &triangles) const
     }
 
     class Storage2D {
@@ -133,22 +132,29 @@ namespace ScratchRenderer {
 
     class Renderer {
         +Renderer(size_t width, size_t height)
-        +renderFrame(sf::RenderWindow &window, const World &world, const Camera &camera)
+        +const std::vector<sf::Vertex> &renderFrame(const World &world, const Camera &camera)
         -getInterpolateCoef(int left, int mid, int right) const : double
         -updateZBuffer(int i, int j, const Primitives::Vertex &v)
+        -sortVerticesByXCoordinate(Primitives::Vertex &vMin, Primitives::Vertex &vMid,
+                                   Primitives::Vertex &vMax)
+        -projectVertexToScreenAndDiscretize(const Primitives::Vertex &v) const : DiscreteVector2
+        -renderWorldTriangles(const std::vector<Primitives::Triangle>& triangles)
         -renderTriangle(const Primitives::Triangle &triangle)
         -renderLine(const Primitives::Vertex &vLeft, const Primitives::Vertex &vRight, int y)
-        -drawFrame(sf::RenderWindow &window)
+        -fillScreen()
 
         -zbuffer_: Storage2D<ZBufferVertex>
         -screen_: Screen
     }
 
     class Application {
-        +Application()
-        +addObject(Object &&object)
+        +Application(std::function<void(World&)> init)
         +run()
         -createKeyboardHandlers()
+        -bool hasWindowClosed()
+        -handleKeyboardInput()
+        -drawFrame(const std::vector<sf::Vertex> &image)
+
         -renderer_: Renderer
         -world_: World
         -camera_: Camera

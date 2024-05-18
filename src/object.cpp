@@ -3,7 +3,6 @@
 #include "glm/ext.hpp"
 
 #include <cassert>
-#include <iostream>
 
 namespace ScratchRenderer {
 Object::Object(std::vector<Primitives::Triangle> &&triangles) : triangles_(std::move(triangles)) {}

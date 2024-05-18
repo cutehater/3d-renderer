@@ -8,15 +8,15 @@
 
 namespace ScratchRenderer {
 
-Camera::Camera() : rotationMatrix_(IdentityMatrix), translationMatrix_(IdentityMatrix) {
-    projectionMatrix_ = getProjectionMatrix();
-}
+Camera::Camera()
+    : rotationMatrix_(IdentityMatrix), translationMatrix_(IdentityMatrix),
+      projectionMatrix_(getProjectionMatrix()) {}
 
 Matrix4 Camera::getProjectionMatrix() const {
-    constexpr double a = configuration::kAspectRatio;
-    constexpr double n = configuration::kNearPlaneDist;
-    constexpr double f = configuration::kFarPlaneDist;
-    constexpr double alpha = configuration::kFieldOfViewAngle;
+    constexpr double a = configuration::gAspectRatio;
+    constexpr double n = configuration::gNearPlaneDist;
+    constexpr double f = configuration::gFarPlaneDist;
+    constexpr double alpha = configuration::gFieldOfViewAngle;
     const double e = 1.0 / tan(alpha / 2);
     const double l = -n / e;
     const double r = n / e;
@@ -71,7 +71,7 @@ Primitives::Triangle Camera::convertTriangleToCameraCoordinates(const Primitives
 }
 
 bool Camera::isFront(const Vector4 &vertexPosition) const {
-    return vertexPosition.z >= configuration::kNearPlaneDist;
+    return vertexPosition.z >= configuration::gNearPlaneDist;
 };
 
 std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitives::Triangle &triangle,
@@ -84,10 +84,10 @@ std::optional<Primitives::Vertex> Camera::intersectEdgeNearPlane(const Primitive
     }
     if (isFront(verticesPositions[frontIdx]) && !isFront(verticesPositions[backIdx])) {
         Vector4 direction = verticesPositions[frontIdx] - verticesPositions[backIdx];
-        double backPlaneDist = configuration::kNearPlaneDist - verticesPositions[backIdx].z;
+        double backPlaneDist = configuration::gNearPlaneDist - verticesPositions[backIdx].z;
         if (backPlaneDist < Epsilon) {
             return Primitives::Vertex(Vector4(verticesPositions[backIdx].x, verticesPositions[backIdx].y,
-                                              configuration::kNearPlaneDist),
+                                              configuration::gNearPlaneDist),
                                       triangle.getYOrderedVertices()[backIdx].getColor());
         }
         double coef = backPlaneDist / direction.z;
@@ -129,7 +129,6 @@ Primitives::Triangle Camera::projectTriangle(const Primitives::Triangle &triangl
 
     for (size_t i = 0; i < 3; ++i) {
         Vector4 projectedVertexPosition = projectionMatrix_ * triangle.getYOrderedVerticesPositions()[i];
-        projectedVertexPosition.normalize();
         projectedVertices[i] =
             Primitives::Vertex(projectedVertexPosition, triangle.getYOrderedVertices()[i].getColor());
     }

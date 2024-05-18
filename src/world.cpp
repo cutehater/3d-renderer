@@ -3,18 +3,16 @@
 #include <cassert>
 
 namespace ScratchRenderer {
-World::ConstIterator::ConstIterator(const World *world, size_t objectIdx, size_t triangleIdx)
-    : world_(world), objectIdx_(objectIdx), triangleIdx_(triangleIdx) {
-    assert(world != nullptr && "world ptr shouldn't be null");
-}
+World::ConstIterator::ConstIterator(const World &world, size_t objectIdx, size_t triangleIdx)
+    : world_(world), objectIdx_(objectIdx), triangleIdx_(triangleIdx) {}
 
 const Primitives::Triangle &World::ConstIterator::operator*() const {
-    return world_->objects_[objectIdx_].getTriangles()[triangleIdx_];
+    return world_.get().objects_[objectIdx_].getTriangles()[triangleIdx_];
 }
 
 World::ConstIterator &World::ConstIterator::operator++() {
     ++triangleIdx_;
-    if (world_->objects_[objectIdx_].getTriangles().size() == triangleIdx_) {
+    if (world_.get().objects_[objectIdx_].getTriangles().size() == triangleIdx_) {
         ++objectIdx_;
         triangleIdx_ = 0;
     }
@@ -22,20 +20,23 @@ World::ConstIterator &World::ConstIterator::operator++() {
 }
 
 World::ConstIterator World::ConstIterator::operator++(int) {
-    World::ConstIterator tmp = *this;
+    ConstIterator tmp = *this;
     ++(*this);
     return tmp;
 }
 
+const Primitives::Triangle *World::ConstIterator::operator->() const { return &(**this); }
+
 bool World::ConstIterator::operator==(ConstIterator other) const {
-    return world_ == other.world_ && objectIdx_ == other.objectIdx_ && triangleIdx_ == other.triangleIdx_;
+    return world_.get().objects_.begin() == other.world_.get().objects_.begin() &&
+           objectIdx_ == other.objectIdx_ && triangleIdx_ == other.triangleIdx_;
 }
 
 bool World::ConstIterator::operator!=(ConstIterator other) const { return !(*this == other); }
 
-World::ConstIterator World::begin() const { return World::ConstIterator(this, 0, 0); }
+World::ConstIterator World::begin() const { return ConstIterator(*this, 0, 0); }
 
-World::ConstIterator World::end() const { return World::ConstIterator(this, objects_.size(), 0); }
+World::ConstIterator World::end() const { return ConstIterator(*this, objects_.size(), 0); }
 
 size_t World::size() const { return size_; }
 

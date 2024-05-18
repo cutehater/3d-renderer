@@ -6,6 +6,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <functional>
 
 namespace ScratchRenderer {
 namespace Primitives {
@@ -18,6 +19,7 @@ public:
     bool operator==(const Vertex &other) const;
     bool operator!=(const Vertex &other) const;
 
+    Vertex &operator*=(const Matrix4 &m);
     friend Vertex operator*(const Matrix4 &m, const Vertex &v);
 
     const Vector4 &getPosition() const;
@@ -47,6 +49,7 @@ public:
             const Vector4 &operator*() const;
             ConstIterator &operator++();
             ConstIterator operator++(int);
+            const Vector4 *operator->() const;
             bool operator==(ConstIterator other) const;
             bool operator!=(const ConstIterator other) const;
 
@@ -61,7 +64,7 @@ public:
         const Vector4 &operator[](size_t index) const;
 
     private:
-        const Container &host_;
+        std::reference_wrapper<const Container> host_;
     };
 
     Triangle(const Vertex &a, const Vertex &b, const Vertex &c);
